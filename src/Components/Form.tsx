@@ -6,6 +6,9 @@ type InputProps = {
   type?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  pattern?: string;
+  placeholder?: string;
 };
 
 export const Input = ({
@@ -14,6 +17,9 @@ export const Input = ({
   type = "text",
   value,
   onChange,
+  inputMode,
+  pattern,
+  placeholder,
 }: InputProps) => (
   <div>
     <label
@@ -28,6 +34,9 @@ export const Input = ({
       type={type}
       value={value}
       onChange={onChange}
+      inputMode={inputMode}
+      pattern={pattern}
+      placeholder={placeholder}
       className="w-full px-4 py-3 rounded-xl bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#4b5244]"
     />
   </div>

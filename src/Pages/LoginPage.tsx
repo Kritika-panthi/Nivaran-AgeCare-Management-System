@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Input } from "../Components/Form";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/authApi";
+import { useAuth } from "../context/AuthContext";
+import RoleSelectModal from "../Components/RoleSelectModal";
 
 type LoginFormData = {
   email: string;
@@ -8,26 +11,53 @@ type LoginFormData = {
 };
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    console.log("Login Data:", formData);
+    try {
+      const res = await loginUser(formData);
+
+      login(res.data.token, res.data.role, res.data.fullName);
+
+
+      if (res.data.role === "admin") {
+        navigate("/admin");
+      } else if (res.data.role === "caregiver") {
+        navigate("/caregiver");
+      } else {
+        navigate("/client");
+      }
+
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
+  <>
+    <RoleSelectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+    />
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
@@ -36,11 +66,11 @@ const LoginPage = () => {
             Welcome <br /> Back to Nivaran
           </h1>
           <p className="text-gray-200 max-w-sm leading-relaxed">
-            Your trusted space for managing care, tracking sessions,
-            and ensuring family well-being.
+            Your trusted space for managing care and ensuring family well-being.
           </p>
         </div>
 
+       {/* Hanldling Login form */}
         <form
           onSubmit={handleSubmit}
           className="flex flex-col justify-center px-8 md:px-14 py-14"
@@ -68,35 +98,30 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
             />
-            <div className="text-right mt-2">
-              <button
-                type="button"
-                className="text-sm text-gray-500 hover:underline"
-              >
-                Forgot?
-              </button>
-            </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#323e26] text-white py-3 rounded-xl font-medium hover:opacity-90 transition"
+            disabled={loading}
+            className="w-full bg-[#323e26] text-white py-3 rounded-xl font-medium hover:opacity-90 transition disabled:opacity-50"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Don’t have an account?{" "}
-            <Link
-              to="/clientregister"
-              className="font-medium text-gray-800 hover:underline"
-            >
-              Create one now
-            </Link>
+            <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="font-medium text-[#323e26] hover:underline"
+              >
+                Create one now
+              </button>
           </p>
         </form>
       </div>
     </div>
+  </>
   );
 };
 

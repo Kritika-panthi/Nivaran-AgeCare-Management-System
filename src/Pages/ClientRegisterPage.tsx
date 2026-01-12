@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Input, Textarea } from "../Components/Form";
+import api from "../api/api";
+import ClientForm from "../Components/ClientForm";
 
 type ClientFormData = {
   fullName: string;
@@ -8,9 +9,10 @@ type ClientFormData = {
   gender: string;
   phone: string;
   email: string;
+  password: string;
   currentLocation: string;
   permanentAddress: string;
-  profilePhoto: File | null; 
+  profilePhoto: File | null;
 };
 
 const ClientRegisterPage = () => {
@@ -21,52 +23,58 @@ const ClientRegisterPage = () => {
     gender: "",
     phone: "",
     email: "",
+    password: "",
     currentLocation: "",
     permanentAddress: "",
-    profilePhoto: null
+    profilePhoto: null,
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files } = e.target;
-    if (files && files[0]) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Client Registration Data:", formData);
+    const data = new FormData();
 
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) {
+        data.append(key, value as any);
+      }
+    });
+
+    try {
+      await api.post("/auth/register/client", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      alert("Client registered successfully");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Registration failed");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-3">
 
+        {/* Left Branding Section */}
         <div className="hidden md:flex flex-col justify-center bg-[#323e26] px-10 py-16 text-white">
-          <h2 className="text-4xl font-semibold leading-snug mb-6">
-            Join Our <br /> Family <br /> Network
+          <h2 className="text-4xl font-semibold mb-6">
+            Join Our <br /> Family Network
           </h2>
-          <p className="text-gray-200 leading-relaxed">
-            Tell us a bit about yourself so we can provide the best care
-            coordination for your loved ones.
+          <p className="text-gray-200">
+            Help us coordinate the best care for your loved ones.
           </p>
         </div>
 
+        {/* Form Section */}
         <form
           onSubmit={handleSubmit}
           className="md:col-span-2 px-10 md:px-16 py-14"
@@ -78,86 +86,21 @@ const ClientRegisterPage = () => {
             Family Member Account
           </p>
 
-          <div className="mb-10">
-              <p className="text-xs font-semibold tracking-wide mb-3">
-                PROFILE PHOTO
-              </p>
-              <input
-                type="file"
-                name="profilePhoto"
-                onChange={handleFileChange}
-                className="w-28 h-28 rounded-full border cursor-pointer"
-              />
-            </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <Input
-              label="FULL NAME"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="OCCUPATION"
-              name="occupation"
-              value={formData.occupation}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="DATE OF BIRTH"
-              type="date"
-              name="dob"
-              value={formData.dob}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="GENDER"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="PHONE NUMBER"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="EMAIL ADDRESS"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-
-            <div className="md:col-span-2">
-              <Input
-                label="CURRENT LOCATION"
-                name="currentLocation"
-                value={formData.currentLocation}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <Textarea
-                label="PERMANENT ADDRESS"
-                name="permanentAddress"
-                value={formData.permanentAddress}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
+          <ClientForm
+            formData={formData}
+            onChange={handleChange}
+            onGenderChange={(value) =>
+              setFormData((prev) => ({ ...prev, gender: value }))
+            }
+            onFileSelect={(file) =>
+              setFormData((prev) => ({ ...prev, profilePhoto: file }))
+            }
+            showPassword
+          />
 
           <button
             type="submit"
-            className="mt-12 w-full bg-[#323e26] text-white py-4 rounded-full font-medium text-lg hover:opacity-90 transition"
+            className="mt-12 w-full bg-[#323e26] text-white py-4 rounded-full text-lg hover:opacity-90 transition"
           >
             Create My Account
           </button>
