@@ -10,3 +10,10 @@ export const registerClient = (data: any) =>
 
 export const registerCaregiver = (data: any) =>
   api.post("/auth/register/caregiver", data);
+
+// Admin
+export const getAdminStats = () =>
+  api.get("/admin/stats");
+
+export const getPendingCaregivers = () =>
+  api.get("/admin/caregivers/pending");
