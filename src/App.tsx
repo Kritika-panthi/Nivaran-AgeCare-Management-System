@@ -3,7 +3,9 @@ import Home from "./Pages/Home";
 import About from "./Pages/Aboutus";
 import Services from "./Pages/Service";
 import Contact from "./Pages/ContactUs";
-
+import LoginPage from "./Pages/LoginPage";
+import ClientRegisterPage from "./Pages/ClientRegisterPage";
+import CaregiverRegisterPage from "./Pages/CaregiverRegisterPage";
 
 
 import Header from "./Components/Header";
@@ -18,8 +20,6 @@ function App() {
       <ScrollToTop />
 
       <Routes>
-
-        {/* Public Pages With Layout */}
         <Route
           path="/"
           element={
@@ -63,6 +63,12 @@ function App() {
             </>
           }
         />
+
+         {/* Authentication Pages */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register/client" element={<ClientRegisterPage />} />
+        <Route path="/register/caregiver" element={<CaregiverRegisterPage />} />
+
 
       </Routes>
     </AuthProvider>
