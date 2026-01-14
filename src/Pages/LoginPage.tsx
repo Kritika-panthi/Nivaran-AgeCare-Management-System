@@ -58,6 +58,7 @@ const LoginPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
     />
+    {/* left side section */}
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
 

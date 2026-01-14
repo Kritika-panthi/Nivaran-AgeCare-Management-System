@@ -64,7 +64,7 @@ const ClientRegisterPage = () => {
     <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-3">
 
-        {/* Left Branding Section */}
+        {/* Left side Section */}
         <div className="hidden md:flex flex-col justify-center bg-[#323e26] px-10 py-16 text-white">
           <h2 className="text-4xl font-semibold mb-6">
             Join Our <br /> Family Network

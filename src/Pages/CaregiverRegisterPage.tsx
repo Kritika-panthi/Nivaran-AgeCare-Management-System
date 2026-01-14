@@ -199,7 +199,7 @@ const CaregiverRegisterPage = () => {
             </div>
           </div>
 
-          {/* Contact */}
+          {/* Contact section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Input label="PHONE NUMBER" name="phone" value={formData.phone} onChange={handleChange} />
             <Input label="EMAIL ADDRESS" name="email" type="email" value={formData.email} onChange={handleChange} />
@@ -216,7 +216,7 @@ const CaregiverRegisterPage = () => {
 
           <Input label="BANK ACCOUNT NUMBER" name="bankAccount" value={formData.bankAccount} onChange={handleChange} />
 
-          {/* Languages */}
+          {/* Languages section*/}
           <div className="my-6">
             <p className="text-xs font-semibold mb-2">LANGUAGES SPOKEN</p>
             <div className="flex gap-2 flex-wrap">
@@ -237,7 +237,7 @@ const CaregiverRegisterPage = () => {
             </div>
           </div>
 
-          {/* Skills */}
+          {/* Skills section*/}
           <div className="my-6">
             <p className="text-xs font-semibold mb-2">PROFESSIONAL SKILLS</p>
             <div className="flex gap-2 flex-wrap">
