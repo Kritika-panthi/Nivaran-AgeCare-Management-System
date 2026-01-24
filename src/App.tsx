@@ -64,7 +64,6 @@ function App() {
           }
         />
 
-         {/* Authentication Pages */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register/client" element={<ClientRegisterPage />} />
         <Route path="/register/caregiver" element={<CaregiverRegisterPage />} />
