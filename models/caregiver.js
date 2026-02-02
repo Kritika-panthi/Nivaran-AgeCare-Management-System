@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define schema for Caregiver collection
 const caregiverSchema = new mongoose.Schema(
   {
     user: {
@@ -13,6 +14,7 @@ const caregiverSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Profile photo filename or URL
     profilePhoto: {
       type: String,
       required: true,
@@ -23,6 +25,7 @@ const caregiverSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Gender with limited options
     gender: {
       type: String,
       enum: ["Male", "Female", "Other"],
@@ -45,8 +48,8 @@ const caregiverSchema = new mongoose.Schema(
     },
 
     languages: {
-      type: [String],
-      default: [],
+      type: [String], // Array of strings
+      default: [], // Default empty array
       required: true,
     },
 
@@ -70,11 +73,13 @@ const caregiverSchema = new mongoose.Schema(
       type: String,
     },
 
+    // ID proof document (file name or path)
     idProof: {
       type: String,
       required: true,
     },
 
+    // Admin approval status
     approvalStatus: {
       type: String,
       enum: ["pending", "approved", "rejected"],
@@ -86,6 +91,7 @@ const caregiverSchema = new mongoose.Schema(
       default: false,
     },
   },
+  // Automatically adds createdAt and updatedAt fields
   { timestamps: true }
 );
 
