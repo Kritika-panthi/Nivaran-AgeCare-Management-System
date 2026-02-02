@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define schema for Client collection
 const clientSchema = new mongoose.Schema(
   {
     user: {
@@ -14,7 +15,7 @@ const clientSchema = new mongoose.Schema(
     },
 
     profilePhoto: {
-      type: String,
+      type: String, // Stores filename or URL
       required: false,
     },
 
@@ -28,17 +29,20 @@ const clientSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Gender with restricted values
     gender: {
       type: String,
       enum: ["Male", "Female", "Other"],
       required: true,
     },
 
+    // Current living location
     currentLocation: {
       type: String,
       required: true,
     },
 
+    // Permanent address
     permanentAddress: {
       type: String,
       required: true,
