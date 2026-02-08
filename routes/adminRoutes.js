@@ -11,7 +11,6 @@ import {
 
 const router = express.Router();
 
-// Admin protected routes
 router.use(authMiddleware, roleMiddleware("admin"));
 
 router.get("/stats", getAdminStats);

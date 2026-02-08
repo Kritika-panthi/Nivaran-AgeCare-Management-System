@@ -17,7 +17,6 @@ export const getAdminStats = async (req, res) => {
       approvalStatus: "pending",
     });
 
-    // If you don't have session tracking yet
     const activeSessions = 0;
 
     res.json({
