@@ -89,7 +89,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* TABLE */}
+      {/* TABLE SECTION*/}
       <h2 className="text-2xl font-semibold mb-6">
         Pending Caregiver Approvals
       </h2>
@@ -140,7 +140,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* MODAL */}
       {selectedCaregiver && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white w-[650px] max-h-[90vh] overflow-y-auto rounded-2xl p-8 shadow-lg">
