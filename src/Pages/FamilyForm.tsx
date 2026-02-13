@@ -4,6 +4,7 @@ import FileUpload from "../Components/FileUpload";
 import { Input, Textarea } from "../Components/Form";
 import api from "../api/api";
 
+// Options for mobility level and chronic conditions
 const mobilityOptions = [
   "WALKS ALONE",
   "USES STICK",
@@ -26,6 +27,7 @@ const FamilyFormPage = () => {
   const { id } = useParams(); // if id exists, we are editing
   const isEdit = Boolean(id);
 
+  // Form state
   const [form, setForm] = useState<any>({
     photo: null,
     fullName: "",
@@ -43,6 +45,7 @@ const FamilyFormPage = () => {
   });
 
   const [medicineInput, setMedicineInput] = useState("");
+  // Fetch profile data if editing
   useEffect(() => {
     if (!isEdit) return;
 
@@ -51,6 +54,7 @@ const FamilyFormPage = () => {
         const res = await api.get(`/family/${id}`);
         const p = res.data;
 
+         // Set form state with fetched profile data
         setForm({
           photo: p.photo || null, // string filename from backend
           fullName: p.fullName || "",
@@ -127,7 +131,7 @@ const removeMedicine = (index: number) => {
     data.append("currentMedicines", JSON.stringify(form.currentMedicines));
     data.append("notes", form.notes);
 
-    // ✅ Only send photo if it is a NEW File
+    // Only send photo if it is a NEW File
     if (form.photo instanceof File) {
       data.append("photo", form.photo);
     }
