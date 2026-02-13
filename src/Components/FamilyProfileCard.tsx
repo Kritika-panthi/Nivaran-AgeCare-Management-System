@@ -1,5 +1,6 @@
 import { Trash2, Edit } from "lucide-react";
 
+// Define the props for the FamilyProfileCard component
 type Props = {
   profile: any;
   onDelete: (id: string) => void;
@@ -10,6 +11,7 @@ const FamilyProfileCard = ({ profile, onDelete, onEdit }: Props) => {
   return (
     <div className="bg-white rounded-3xl shadow-md p-6 flex items-center justify-between hover:shadow-lg transition">
 
+      {/* Profile image and info */}
       <div className="flex items-center gap-6">
         <img
           src={
@@ -20,6 +22,7 @@ const FamilyProfileCard = ({ profile, onDelete, onEdit }: Props) => {
           className="w-20 h-20 rounded-full object-cover"
         />
 
+        {/* Profile details */}
         <div>
           <h3 className="text-lg font-bold">{profile.fullName}</h3>
           <p className="text-sm text-gray-500">
@@ -39,6 +42,7 @@ const FamilyProfileCard = ({ profile, onDelete, onEdit }: Props) => {
           <Edit size={18} />
         </button>
 
+        {/* Delete button */}
         <button
           onClick={() => onDelete(profile._id)}
           className="p-3 rounded-xl border hover:bg-red-50 text-red-600"
