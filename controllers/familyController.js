@@ -18,7 +18,7 @@ export const createFamilyProfile = async (req, res) => {
       notes,
     } = req.body;
 
-    // Basic validation (avoid 500)
+    // Basic validation
     if (!fullName || !age || !gender) {
       return res.status(400).json({ message: "Full name, age and gender are required" });
     }
@@ -75,7 +75,7 @@ export const getFamilyProfiles = async (req, res) => {
   }
 };
 
-// Get Single Family Profile by ID (for edit prefill)
+// Get Single Family Profile by ID
 export const getFamilyProfileById = async (req, res) => {
   try {
     const profile = await FamilyProfile.findOne({
@@ -121,7 +121,6 @@ export const updateFamilyProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    // Update fields (only overwrite with provided values)
     if (fullName !== undefined) profile.fullName = fullName;
     if (age !== undefined) profile.age = Number(age);
     if (gender !== undefined) profile.gender = gender;
