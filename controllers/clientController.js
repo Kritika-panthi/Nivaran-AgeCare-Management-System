@@ -72,7 +72,6 @@ export const updateClientProfile = async (req, res) => {
       permanentAddress,
     } = req.body;
 
-    // Update User table
     await User.findByIdAndUpdate(userId, { fullName });
 
     // Find client profile
