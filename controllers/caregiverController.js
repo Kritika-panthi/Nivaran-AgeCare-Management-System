@@ -274,6 +274,7 @@ export const updateCaregiverProfile = async (req, res) => {
       return res.status(404).json({ message: "Caregiver profile not found" });
     }
 
+    // Update fields
     caregiver.age = age;
     caregiver.gender = gender;
     caregiver.phone = phone;
