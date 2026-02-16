@@ -14,7 +14,6 @@ import {
 
 const router = express.Router();
 
-// Public route
 router.get("/approved", async (req, res) => {
   try {
     const caregivers = await Caregiver.find({
