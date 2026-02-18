@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ClientForm from "../Components/ClientForm";
 import api from "../api/api";
 
+// State for storing client profile data
 const ClientProfilePage = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -15,6 +16,7 @@ const ClientProfilePage = () => {
     profilePhoto: null as File | string | null,
   });
 
+  // Fetch client profile from backend 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -28,6 +30,7 @@ const ClientProfilePage = () => {
     fetchProfile();
   }, []);
 
+   // Handle input changes (text, number, textarea)
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
