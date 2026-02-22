@@ -142,7 +142,6 @@ const CaregiverDashboard = () => {
           </button>
         </div>
 
-        {/* PENDING REQUESTS */}
         <div className="mb-16">
           <h2 className="text-2xl font-semibold mb-6">
             Pending Requests
