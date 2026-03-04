@@ -152,7 +152,6 @@ const CaregiverAvailabilityPage = () => {
 
         </div>
 
-        {/* WEEKLY GRID */}
         <div className="grid md:grid-cols-2 gap-8">
 
           {DAYS.map((day) => {
