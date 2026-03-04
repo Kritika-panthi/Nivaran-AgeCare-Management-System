@@ -125,7 +125,6 @@ const CaregiverDashboard = () => {
           </p>
         </div>
 
-        {/* STAT CARDS */}
         <div className="grid md:grid-cols-3 gap-8 mb-14">
           <StatCard title="Total Earnings" value={`Rs. ${data.totalEarnings}`} />
           <StatCard title="Jobs Completed" value={data.jobsCompleted} />
@@ -253,7 +252,6 @@ const CaregiverDashboard = () => {
           )}
         </div>
 
-        {/* UPCOMING WORK */}
 
         <div>
 
