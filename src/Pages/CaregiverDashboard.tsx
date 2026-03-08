@@ -115,7 +115,6 @@ const CaregiverDashboard = () => {
     <div className="min-h-screen bg-gray-100 px-25 py-10">
       <div className="max-w-7xl mx-auto">
 
-        {/* HEADER */}
         <div className="mb-14">
           <h1 className="text-4xl font-bold mb-2">
             Hello, {fullName}
