@@ -32,7 +32,6 @@ router.get("/approved", async (req, res) => {
   }
 });
 
-// Protected caregiver routes
 router.get(
   "/profile",
   authMiddleware,
