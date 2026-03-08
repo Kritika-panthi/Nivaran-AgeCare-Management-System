@@ -30,6 +30,7 @@ export const getAdminStats = async (req, res) => {
   }
 };
 
+// Get caregiver by caregiverId
 export const getCaregiverById = async (req, res) => {
   try {
     const caregiver = await Caregiver.findById(req.params.id)
