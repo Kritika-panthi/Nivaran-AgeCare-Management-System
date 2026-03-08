@@ -55,7 +55,7 @@ export const getMyWeeklyAvailability = async (req, res) => {
 };
 
 
-// CAREGIVER: Add Time Range to Day
+// Add Time Range to Day
 export const upsertWeeklyAvailability = async (req, res) => {
   try {
     const caregiver = await Caregiver.findOne({ user: req.user._id });
@@ -110,7 +110,7 @@ export const upsertWeeklyAvailability = async (req, res) => {
   }
 };
 
-// CAREGIVER: Remove Specific Time Range
+// Remove Specific Time Range
 
 export const removeTimeRange = async (req, res) => {
   try {
