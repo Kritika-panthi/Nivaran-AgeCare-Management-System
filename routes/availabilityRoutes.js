@@ -36,8 +36,6 @@ router.delete(
 );
 
 
-
-// Get available hourly slots
 router.get("/slots", getAvailableSlotsForCaregiver);
 
 export default router;
