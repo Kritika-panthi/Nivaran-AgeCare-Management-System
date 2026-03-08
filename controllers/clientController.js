@@ -81,7 +81,6 @@ export const updateClientProfile = async (req, res) => {
       return res.status(404).json({ message: "Client profile not found" });
     }
 
-    // Update fields
     client.phone = phone;
     client.occupation = occupation;
     client.dob = dob;
