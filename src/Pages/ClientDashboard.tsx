@@ -28,6 +28,8 @@ type BookingHistoryItem = {
   familyMemberName: string;
 };
 
+
+{/* Pagination */}
 type Pagination = {
   total: number;
   page: number;
@@ -186,7 +188,6 @@ const ClientDashboard = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
               <div className="flex justify-between items-center mt-8">
                 <button
