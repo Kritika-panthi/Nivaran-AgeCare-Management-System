@@ -5,6 +5,7 @@ import {
   removeAvailabilityRange,
 } from "../api/authApi";
 
+// Days of the week
 const DAYS = [
   "Monday",
   "Tuesday",
@@ -15,11 +16,13 @@ const DAYS = [
   "Sunday",
 ];
 
+// Type for a time range
 type TimeRange = {
   startTime: string;
   endTime: string;
 };
 
+// State for storing all availability data
 type AvailabilityDay = {
   _id: string;
   day: string;
