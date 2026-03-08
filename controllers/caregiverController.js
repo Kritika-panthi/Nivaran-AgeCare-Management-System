@@ -5,6 +5,7 @@ import Client from "../models/client.js";
 import User from "../models/user.js";
 import createNotification from "../utils/createNotification.js";
 
+// Helper function to format booking data for dashboard cards
 const formatBookingCard = async (booking) => {
   const clientProfile = await Client.findOne({ user: booking.client?._id }).lean();
 
@@ -44,6 +45,7 @@ const formatBookingCard = async (booking) => {
   };
 };
 
+// Get caregiver dashboard info: availability, bookings, earnings
 export const getCaregiverDashboard = async (req, res) => {
   try {
     const caregiver = await Caregiver.findOne({ user: req.user._id });
@@ -52,10 +54,12 @@ export const getCaregiverDashboard = async (req, res) => {
       return res.status(404).json({ message: "Caregiver not found" });
     }
 
+    // Fetch weekly availability for the caregive
     const weeklyAvailability = await Availability.find({
       caregiver: caregiver._id,
     }).lean();
 
+    // Fetch all bookings related to caregiver
     const isAvailable = weeklyAvailability.some(
       (day) => Array.isArray(day.timeRanges) && day.timeRanges.length > 0
     );
@@ -69,6 +73,7 @@ export const getCaregiverDashboard = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
+    // Categorize bookings by status
     const pending = bookings.filter((b) => b.status === "pending");
     const upcoming = bookings.filter((b) => b.status === "confirmed");
     const completed = bookings.filter((b) => b.status === "completed");
@@ -78,6 +83,7 @@ export const getCaregiverDashboard = async (req, res) => {
       0
     );
 
+    // Format bookings for frontend cards
     const pendingBookings = await Promise.all(
       pending.map((booking) => formatBookingCard(booking))
     );
@@ -98,6 +104,7 @@ export const getCaregiverDashboard = async (req, res) => {
   }
 };
 
+// Accept a pending booking
 export const acceptBooking = async (req, res) => {
   try {
     const caregiver = await Caregiver.findOne({ user: req.user._id }).populate("user", "fullName");
@@ -116,9 +123,11 @@ export const acceptBooking = async (req, res) => {
       return res.status(404).json({ message: "Pending booking not found" });
     }
 
+    // Update booking status
     booking.status = "confirmed";
     await booking.save();
 
+    // Notify client about booking acceptance
     await createNotification({
       recipient: booking.client,
       sender: req.user._id,
@@ -140,6 +149,7 @@ export const acceptBooking = async (req, res) => {
   }
 };
 
+// Decline a pending booking
 export const declineBooking = async (req, res) => {
   try {
     const caregiver = await Caregiver.findOne({ user: req.user._id }).populate("user", "fullName");
