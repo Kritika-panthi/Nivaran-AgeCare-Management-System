@@ -16,11 +16,11 @@ const availabilitySchema = new mongoose.Schema(
     timeRanges: [
       {
         startTime: {
-          type: String, // "09:00"
+          type: String, 
           required: true,
         },
         endTime: {
-          type: String, // "11:00"
+          type: String,
           required: true,
         },
       },
