@@ -11,7 +11,7 @@ export const registerClient = (data: any) =>
 export const registerCaregiver = (data: any) =>
   api.post("/auth/register/caregiver", data);
 
-
+// admin
 export const getAdminStats = () =>
   api.get("/admin/stats");
 
@@ -33,6 +33,7 @@ export const getClientStats = () =>
 export const getApprovedCaregivers = () =>
   api.get("/caregivers/approved");
 
+// Family form
 export const getFamilyProfiles = () =>
   api.get("/family");
 
@@ -45,9 +46,11 @@ export const updateFamilyProfile = (id: string, data: any) =>
 export const deleteFamilyProfile = (id: string) =>
   api.delete(`/family/${id}`);
 
+// Caregiver Dashboard
 export const getCaregiverDashboard = () =>
   api.get("/caregivers/dashboard");
 
+// Availability
 export const getMyAvailability = () =>
   api.get("/availability");
 
@@ -67,6 +70,7 @@ export const removeAvailabilityRange = (data: {
 export const getAvailableRanges = (caregiverId: string, date: string) =>
   api.get(`/availability/slots?caregiverId=${caregiverId}&date=${date}`);
 
+// booking
 export const createBooking = (data: {
   caregiverId: string;
   familyProfileId: string;
@@ -84,6 +88,7 @@ export const declineCaregiverBooking = (id: string) =>
 export const completeCaregiverBooking = (id: string) =>
   api.put(`/caregivers/bookings/${id}/complete`);
 
+// Notifications
 export const getMyNotifications = () =>
   api.get("/notifications");
 
