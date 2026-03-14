@@ -16,6 +16,7 @@ dotenv.config();
 
 const app = express();
 
+//database connection
 connectDB();
 
 app.use(cors());
@@ -23,6 +24,7 @@ app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 
+//Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/client", clientRoutes);
