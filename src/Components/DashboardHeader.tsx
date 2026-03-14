@@ -15,6 +15,7 @@ import {
 } from "../api/authApi";
 import logo from "../assets/logo/logo_white.png";
 
+// Type for notification object
 type Notification = {
   _id: string;
   type: string;
@@ -24,6 +25,7 @@ type Notification = {
   createdAt: string;
 };
 
+// Helper function to format date and time
 const formatDateTime = (dateString: string) => {
   return new Date(dateString).toLocaleString();
 };
@@ -42,6 +44,7 @@ const DashboardHeader = () => {
 
   const displayName = role === "admin" ? "Admin" : fullName;
 
+  // Handle logout
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -53,6 +56,7 @@ const DashboardHeader = () => {
     setOpen(false);
   };
 
+   // Fetch all notifications
   const fetchNotifications = async () => {
     try {
       const res = await getMyNotifications();
@@ -169,6 +173,7 @@ const DashboardHeader = () => {
         )}
 
         <div className="flex items-center gap-8 relative">
+
           {/* Notification Bell */}
           <div ref={notificationRef} className="relative">
             <button
