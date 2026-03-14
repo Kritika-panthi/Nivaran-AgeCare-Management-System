@@ -118,7 +118,7 @@ const BookingPage = () => {
     <div className="min-h-screen bg-gray-100 flex justify-center items-center p-10">
       <div className="bg-white w-[1000px] rounded-3xl shadow-xl grid grid-cols-2">
 
-        {/* LEFT PANEL */}
+        {/* Left side */}
         <div className="p-10 border-r">
 
           <img
@@ -151,7 +151,7 @@ const BookingPage = () => {
 
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* Right side */}
         <div className="p-10">
 
           <h2 className="text-3xl font-bold mb-8">
@@ -195,6 +195,7 @@ const BookingPage = () => {
             </div>
           </div>
 
+           {/* Select family */}
           <div className="mb-8">
             <label className="block font-semibold mb-2">
               Select Family Profile
