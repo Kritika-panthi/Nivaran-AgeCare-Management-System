@@ -11,6 +11,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+// Routes
 router.get("/unread-count", getUnreadNotificationCount);
 router.get("/", getMyNotifications);
 router.put("/read-all", markAllNotificationsAsRead);
