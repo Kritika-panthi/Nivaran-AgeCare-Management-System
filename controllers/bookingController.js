@@ -4,17 +4,20 @@ import FamilyProfile from "../models/familyProfile.js";
 import User from "../models/user.js";
 import createNotification from "../utils/createNotification.js";
 
+// Convert "HH:MM" string to total minutes
 const toMinutes = (hhmm) => {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
 };
 
+// Parse a date string into UTC midnight
 const parseDateOnlyUTC = (dateStr) => {
   const d = new Date(`${dateStr}T00:00:00.000Z`);
   if (Number.isNaN(d.getTime())) return null;
   return d;
 };
 
+// Check if two time ranges overlap
 const overlaps = (aStart, aEnd, bStart, bEnd) => {
   const A1 = toMinutes(aStart);
   const A2 = toMinutes(aEnd);
@@ -24,6 +27,7 @@ const overlaps = (aStart, aEnd, bStart, bEnd) => {
   return A1 < B2 && A2 > B1;
 };
 
+// Create a new booking
 export const createBooking = async (req, res) => {
   try {
     const { caregiverId, familyProfileId, date, startTime, endTime } = req.body;
