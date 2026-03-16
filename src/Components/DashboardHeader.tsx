@@ -66,6 +66,7 @@ const DashboardHeader = () => {
     }
   };
 
+   // Fetch unread notification count
   const fetchUnreadCount = async () => {
     try {
       const res = await getUnreadNotificationCount();
@@ -75,16 +76,19 @@ const DashboardHeader = () => {
     }
   };
 
+  // Handle bell icon click
   const handleBellClick = async () => {
     const next = !notificationOpen;
     setNotificationOpen(next);
 
+    // When opening, fetch notifications and count
     if (!notificationOpen) {
       await fetchNotifications();
       await fetchUnreadCount();
     }
   };
 
+  // Mark a single notification as read
   const handleNotificationClick = async (id: string) => {
     try {
       await markNotificationAsRead(id);
@@ -95,16 +99,18 @@ const DashboardHeader = () => {
         )
       );
 
+      // Decrease unread count
       setUnreadCount((prev) => (prev > 0 ? prev - 1 : 0));
     } catch (error) {
       console.error("Failed to mark notification as read");
     }
   };
 
+  // Fetch unread count on mount and refresh every 10 seconds
   const handleMarkAllRead = async () => {
     try {
       await markAllNotificationsAsRead();
-
+       // Update local state
       setNotifications((prev) =>
         prev.map((n) => ({ ...n, isRead: true }))
       );
@@ -134,6 +140,7 @@ const DashboardHeader = () => {
         setOpen(false);
       }
 
+      // Close notification dropdown
       if (
         notificationRef.current &&
         !notificationRef.current.contains(event.target as Node)
