@@ -28,6 +28,7 @@ import BookingPage from "./Pages/BookingPage";
 function App() {
   return (
     <AuthProvider>
+      {/* Scroll to top on route change */}
       <ScrollToTop />
 
       <Routes>
@@ -82,7 +83,6 @@ function App() {
         <Route path="/register/client" element={<ClientRegisterPage />} />
         <Route path="/register/caregiver" element={<CaregiverRegisterPage />} />
 
-        {/* Protected Admin Route */}
         <Route
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -118,6 +118,8 @@ function App() {
           }
         >
           <Route index element={<CaregiverDashboard/>} />
+          
+          {/* Availability management page */}
           <Route path="availability" element={<CaregiverAvailabilityPage />} />
         </Route>
 
