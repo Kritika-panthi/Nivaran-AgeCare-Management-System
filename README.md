@@ -88,23 +88,41 @@ The platform provides role-based access for **Admin, Caregiver, and Client** use
 ## 📂 Project Structure
 
 ```bash
-Nivaran/
+Nivaran-AgeCare-Management-System/
 │
-├── frontend/
-│   ├── src/
-│   ├── components/
-│   ├── pages/
-│   └── assets/
+├── 📁 frontend/                        # React + Vite + TypeScript
+│   ├── 📁 public/
+│   ├── 📁 src/
+│   │   ├── 📁 Components/
+│   │   ├── 📁 Pages/
+│   │   ├── 📁 assets/
+│   │   ├── App.css
+│   │   ├── App.tsx
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
 │
-├── backend/
-│   ├── src/
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── middleware/
-│   └── uploads/
-│
-└── README.md
+└── 📁 backend/                         # Node.js + Express
+    ├── 📁 config/
+    ├── 📁 controllers/
+    ├── 📁 middlewares/
+    ├── 📁 models/
+    ├── 📁 routes/
+    ├── 📁 sockets/
+    ├── 📁 uploads/
+    ├── 📁 utils/
+    ├── .gitignore
+    ├── package-lock.json
+    ├── package.json
+    └── server.js
 ```
 
 ---
