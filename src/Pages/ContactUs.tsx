@@ -7,9 +7,51 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
+import { sendContactMessage } from "../api/authApi";
 
 const Contact = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+    setSending(true);
+    setError("");
+    try {
+      await sendContactMessage(formData);
+      setSent(true);
+      setFormData({
+        fullName: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+        "Failed to send message. Please try again."
+      );
+    } finally {
+      setSending(false);
+    }
+  };
 
   const faqs = [
     {
@@ -57,7 +99,7 @@ const Contact = () => {
               Send us a message
             </h2>
 
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
 
               {/* Name + Email */}
               <div className="grid md:grid-cols-2 gap-6">
@@ -67,7 +109,11 @@ const Contact = () => {
                   </label>
                   <input
                     type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
                     placeholder="Your Name"
+                    required
                     className="w-full mt-2 bg-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#2E4E3F]"
                   />
                 </div>
@@ -78,7 +124,11 @@ const Contact = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder="Your Email"
+                    required
                     className="w-full mt-2 bg-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#2E4E3F]"
                   />
                 </div>
@@ -91,7 +141,11 @@ const Contact = () => {
                 </label>
                 <input
                   type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
                   placeholder="Inquiry Subject"
+                  required
                   className="w-full mt-2 bg-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#2E4E3F]"
                 />
               </div>
@@ -103,19 +157,44 @@ const Contact = () => {
                 </label>
                 <textarea
                   rows={5}
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   placeholder="How can we assist you?"
+                  required
                   className="w-full mt-2 bg-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#2E4E3F] resize-none"
                 />
               </div>
 
               {/* Submit Button */}
-              <button
-                type="submit"
-                className="w-full bg-[#3e5439] text-white py-4 rounded-xl font-semibold text-lg hover:bg-[#243d31] transition flex items-center justify-center gap-3 shadow-md"
-              >
-                Send Message
-                <Send size={18} />
-              </button>
+              {error && (
+                <p className="text-red-500 text-sm text-center">
+                  {error}
+                </p>
+              )}
+
+              {sent && (
+                <div className="text-center py-2">
+                  <p className="text-[#2E4E3F] font-semibold">
+                    ✓ Message sent successfully!
+                  </p>
+                  <p className="text-gray-500 text-sm mt-1">
+                    We'll get back to you within 24–48 hours.
+                    Check your email for confirmation.
+                  </p>
+                </div>
+              )}
+
+              {!sent && (
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="w-full bg-[#3e5439] text-white py-4 rounded-xl font-semibold text-lg hover:bg-[#243d31] transition flex items-center justify-center gap-3 shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {sending ? "Sending..." : "Send Message"}
+                  {!sending && <Send size={18} />}
+                </button>
+              )}
             </form>
           </div>
 

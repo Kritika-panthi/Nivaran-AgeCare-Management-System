@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Input, Textarea } from "../Components/Form";
 import api from "../api/api";
 import FileUpload from "../Components/FileUpload";
@@ -57,6 +59,7 @@ const CaregiverRegisterPage = () => {
     profilePhoto: null,
     idProof: null,
   });
+  const navigate = useNavigate();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,6 +82,73 @@ const CaregiverRegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    const errors: string[] = [];
+
+    if (!formData.fullName.trim())
+      errors.push("Full name is required");
+
+    if (!formData.age || isNaN(Number(formData.age)) ||
+        Number(formData.age) < 18 ||
+        Number(formData.age) > 70)
+      errors.push("Age must be between 18 and 70");
+
+    if (!formData.gender)
+      errors.push("Gender is required");
+
+    if (!formData.phone.trim() ||
+        !/^\d{10}$/.test(formData.phone.trim()))
+      errors.push("Phone must be a valid 10-digit number");
+
+    if (!formData.email.trim() ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+          formData.email.trim()
+        ))
+      errors.push("Valid email address is required");
+
+    if (!formData.password ||
+        formData.password.length < 6)
+      errors.push("Password must be at least 6 characters");
+
+    if (!formData.experience.trim() ||
+        isNaN(Number(formData.experience)) ||
+        Number(formData.experience) < 0)
+      errors.push("Valid experience in years is required");
+
+    if (!formData.hourlyRate.trim() ||
+        isNaN(Number(formData.hourlyRate)) ||
+        Number(formData.hourlyRate) <= 0)
+      errors.push("Valid hourly rate is required");
+
+    if (!formData.bankAccount.trim())
+      errors.push("Bank account number is required");
+
+    if (formData.languages.length === 0)
+      errors.push("Select at least one language");
+
+    if (formData.skills.length === 0)
+      errors.push("Select at least one skill");
+
+    if (!formData.currentAddress.trim())
+      errors.push("Current address is required");
+
+    if (!formData.permanentAddress.trim())
+      errors.push("Permanent address is required");
+
+    if (!formData.bio.trim())
+      errors.push("Bio is required");
+
+    if (!formData.profilePhoto)
+      errors.push("Profile photo is required");
+
+    if (!formData.idProof)
+      errors.push("ID proof is required");
+
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
+    }
 
     const data = new FormData();
 
@@ -121,7 +191,14 @@ const CaregiverRegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10 relative">
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 shadow-sm hover:shadow-md hover:text-gray-900 transition-all duration-200 z-10"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Home
+      </button>
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-3">
 
         {/* Left Panel */}

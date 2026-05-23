@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../Components/StatCard";
+import CaregiverTracking from "../Components/CaregiverTracking";
 import {
   getCaregiverDashboard,
   acceptCaregiverBooking,
@@ -41,6 +42,12 @@ type Booking = {
   totalAmount: number;
   client: ClientData;
   familyProfile: FamilyProfile;
+   tracking: {
+    parentLocation: {
+      lat: number;
+      lng: number;
+    };
+  };
 };
 
 type DashboardData = {
@@ -51,8 +58,7 @@ type DashboardData = {
   upcomingBookings: Booking[];
 };
 
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString();
+const formatDate = (date: string) => new Date(date).toLocaleDateString();
 
 const formatTime = (time: string) => {
   const [hour, minute] = time.split(":").map(Number);
@@ -71,6 +77,8 @@ const CaregiverDashboard = () => {
   const [clientModal, setClientModal] = useState<ClientData | null>(null);
   const [familyModal, setFamilyModal] = useState<FamilyProfile | null>(null);
 
+  const [activeTrackingBookingId, setActiveTrackingBookingId] = useState<string | null>(null);
+
   useEffect(() => {
     fetchDashboard();
   }, []);
@@ -88,7 +96,8 @@ const CaregiverDashboard = () => {
 
   const handleAccept = async (id: string) => {
     await acceptCaregiverBooking(id);
-    fetchDashboard();
+    await fetchDashboard();
+    setActiveTrackingBookingId(id);
   };
 
   const handleDecline = async (id: string) => {
@@ -98,6 +107,9 @@ const CaregiverDashboard = () => {
 
   const handleComplete = async (id: string) => {
     await completeCaregiverBooking(id);
+    if (activeTrackingBookingId === id) {
+      setActiveTrackingBookingId(null);
+    }
     fetchDashboard();
   };
 
@@ -112,11 +124,10 @@ const CaregiverDashboard = () => {
   if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 px-25 py-10">
+    <div className="min-h-screen bg-gray-100 px-4 sm:px-8 lg:px-16 py-8">
       <div className="max-w-7xl mx-auto">
-
-        <div className="mb-14">
-          <h1 className="text-4xl font-bold mb-2">
+        <div className="mb-8 sm:mb-14">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2">
             Hello, {fullName}
           </h1>
           <p className="text-gray-500">
@@ -124,24 +135,26 @@ const CaregiverDashboard = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-14">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 mb-8 sm:mb-14">
           <StatCard title="Total Earnings" value={`Rs. ${data.totalEarnings}`} />
           <StatCard title="Jobs Completed" value={data.jobsCompleted} />
-          <StatCard title="Availability Status" value={data.isAvailable ? "Available" : "Unavailable"} />
+          <StatCard
+            title="Availability Status"
+            value={data.isAvailable ? "Available" : "Unavailable"}
+          />
         </div>
 
-        {/* AVAILABILITY BUTTON */}
-        <div className="mb-16">
+        <div className="mb-8 sm:mb-16">
           <button
             onClick={() => navigate("/caregiver/availability")}
-            className="bg-[#2E4E3F] text-white px-8 py-4 rounded-xl shadow"
+            className="w-full sm:w-auto bg-[#2E4E3F] text-white px-8 py-4 rounded-xl shadow"
           >
-            Manage Availability →
+            Manage Availability
           </button>
         </div>
 
-        <div className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6">
+        <div className="mb-8 sm:mb-16">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
             Pending Requests
           </h2>
 
@@ -151,18 +164,13 @@ const CaregiverDashboard = () => {
             </div>
           ) : (
             <div className="space-y-6">
-
               {data.pendingBookings.map((booking) => (
-
                 <div
                   key={booking._id}
-                  className="bg-white rounded-2xl shadow-sm p-6 flex justify-between items-center hover:shadow-md transition"
+                  className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition"
                 >
-
-                  <div className="flex items-center gap-5">
-
-                    <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden">
-
+                  <div className="flex items-center gap-3 sm:gap-5">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden flex-shrink-0">
                       {booking.client.photo ? (
                         <img
                           src={`http://localhost:3000/uploads/${booking.client.photo}`}
@@ -171,14 +179,10 @@ const CaregiverDashboard = () => {
                       ) : (
                         booking.client.fullName.charAt(0)
                       )}
-
                     </div>
 
                     <div>
-
-                      <p className="font-semibold text-lg">
-                        {booking.client.fullName}
-                      </p>
+                      <p className="font-semibold text-lg">{booking.client.fullName}</p>
 
                       <p className="text-sm text-gray-500">
                         Family: {booking.familyProfile.fullName}
@@ -189,7 +193,6 @@ const CaregiverDashboard = () => {
                       </p>
 
                       <div className="flex gap-3 mt-2">
-
                         <button
                           onClick={() => setClientModal(booking.client)}
                           className="text-sm font-medium text-[#2E4E3F] hover:underline"
@@ -203,58 +206,48 @@ const CaregiverDashboard = () => {
                         >
                           View Family
                         </button>
-
                       </div>
-
                     </div>
                   </div>
 
-                  <div className="text-center">
-
-                    <p className="font-medium">
-                      {formatDate(booking.date)}
-                    </p>
-
-                    <p className="text-sm text-gray-500">
-                      {formatTime(booking.startTime)} – {formatTime(booking.endTime)}
-                    </p>
-
+                  <div className="flex items-center gap-4 text-sm flex-wrap">
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        {formatDate(booking.date)}
+                      </p>
+                      <p className="text-gray-500">
+                        {formatTime(booking.startTime)} - {" "}
+                        {formatTime(booking.endTime)}
+                      </p>
+                    </div>
+                    <div className="font-semibold text-[#2E4E3F] text-base">
+                      Rs. {booking.totalAmount}
+                    </div>
                   </div>
 
-                  <div className="font-semibold text-[#2E4E3F] text-lg">
-                    Rs. {booking.totalAmount}
-                  </div>
-
-                  <div className="flex gap-3">
-
+                  <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                     <button
                       onClick={() => handleAccept(booking._id)}
-                      className="px-5 py-2 rounded-lg bg-[#2E4E3F] text-white"
+                      className="flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg bg-[#2E4E3F] text-white text-sm"
                     >
                       Accept
                     </button>
 
                     <button
                       onClick={() => handleDecline(booking._id)}
-                      className="px-5 py-2 rounded-lg border border-red-500 text-red-500 hover:bg-red-50"
+                      className="flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg border border-red-500 text-red-500 hover:bg-red-50 text-sm"
                     >
                       Decline
                     </button>
-
                   </div>
-
                 </div>
-
               ))}
-
             </div>
           )}
         </div>
 
-
         <div>
-
-          <h2 className="text-2xl font-semibold mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
             Upcoming Work
           </h2>
 
@@ -264,108 +257,107 @@ const CaregiverDashboard = () => {
             </div>
           ) : (
             <div className="space-y-6">
-
               {data.upcomingBookings.map((booking) => (
-
                 <div
                   key={booking._id}
-                  className="bg-white rounded-2xl shadow-sm p-6 flex justify-between items-center hover:shadow-md transition"
+                  className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 hover:shadow-md transition"
                 >
-
-                  <div className="flex items-center gap-5">
-
-                    <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden">
-
-                      {booking.client.photo ? (
-                        <img
-                          src={`http://localhost:3000/uploads/${booking.client.photo}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        booking.client.fullName.charAt(0)
-                      )}
-
-                    </div>
-
-                    <div>
-
-                      <p className="font-semibold text-lg">
-                        {booking.client.fullName}
-                      </p>
-
-                      <p className="text-sm text-gray-500">
-                        Family: {booking.familyProfile.fullName}
-                      </p>
-
-                      <p className="text-sm text-gray-500">
-                        Location: {booking.familyProfile.livingAddress}
-                      </p>
-
-                      <div className="flex gap-3 mt-2">
-
-                        <button
-                          onClick={() => setClientModal(booking.client)}
-                          className="text-sm font-medium text-[#2E4E3F] hover:underline"
-                        >
-                          View Client
-                        </button>
-
-                        <button
-                          onClick={() => setFamilyModal(booking.familyProfile)}
-                          className="text-sm font-medium text-[#2E4E3F] hover:underline"
-                        >
-                          View Family
-                        </button>
-
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3 sm:gap-5">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden flex-shrink-0">
+                        {booking.client.photo ? (
+                          <img
+                            src={`http://localhost:3000/uploads/${booking.client.photo}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          booking.client.fullName.charAt(0)
+                        )}
                       </div>
 
+                      <div>
+                        <p className="font-semibold text-lg">{booking.client.fullName}</p>
+
+                        <p className="text-sm text-gray-500">
+                          Family: {booking.familyProfile.fullName}
+                        </p>
+
+                        <p className="text-sm text-gray-500">
+                          Location: {booking.familyProfile.livingAddress}
+                        </p>
+
+                        <div className="flex gap-3 mt-2">
+                          <button
+                            onClick={() => setClientModal(booking.client)}
+                            className="text-sm font-medium text-[#2E4E3F] hover:underline"
+                          >
+                            View Client
+                          </button>
+
+                          <button
+                            onClick={() => setFamilyModal(booking.familyProfile)}
+                            className="text-sm font-medium text-[#2E4E3F] hover:underline"
+                          >
+                            View Family
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm flex-wrap">
+                      <div>
+                        <p className="font-medium text-gray-800">
+                          {formatDate(booking.date)}
+                        </p>
+                        <p className="text-gray-500">
+                          {formatTime(booking.startTime)} - {" "}
+                          {formatTime(booking.endTime)}
+                        </p>
+                      </div>
+                      <div className="font-semibold text-[#2E4E3F] text-base">
+                        Rs. {booking.totalAmount}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto flex-wrap">
+                      <button
+                        onClick={() =>
+                          setActiveTrackingBookingId(
+                            activeTrackingBookingId === booking._id ? null : booking._id
+                          )
+                        }
+                        className="flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg border border-[#2E4E3F] text-[#2E4E3F] text-sm"
+                      >
+                        {activeTrackingBookingId === booking._id
+                          ? "Stop Tracking"
+                          : "Start Tracking"}
+                      </button>
+
+                      <button
+                        onClick={() => handleComplete(booking._id)}
+                        className="flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg bg-[#2E4E3F] text-white text-sm"
+                      >
+                        Mark Complete
+                      </button>
                     </div>
                   </div>
-
-                  <div className="text-center">
-
-                    <p className="font-medium">
-                      {formatDate(booking.date)}
-                    </p>
-
-                    <p className="text-sm text-gray-500">
-                      {formatTime(booking.startTime)} – {formatTime(booking.endTime)}
-                    </p>
-
-                  </div>
-
-                  <div className="font-semibold text-[#2E4E3F] text-lg">
-                    Rs. {booking.totalAmount}
-                  </div>
-
-                  <button
-                    onClick={() => handleComplete(booking._id)}
-                    className="px-5 py-2 rounded-lg bg-[#2E4E3F] text-white"
-                  >
-                    Mark Complete
-                  </button>
+                  <CaregiverTracking
+                    bookingId={booking._id}
+                    isActive={activeTrackingBookingId === booking._id}
+                    parentLocation={booking.tracking?.parentLocation}
+                  />
 
                 </div>
-
               ))}
-
             </div>
           )}
         </div>
-
       </div>
 
-      {/* CLIENT MODAL */}
-
       {clientModal && (
-
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-
-          <div className="bg-white w-[600px] rounded-3xl p-10 shadow-xl">
-
-            <h2 className="text-2xl font-bold mb-6">
-              Client Details
-            </h2>
+          <div className="bg-white w-full max-w-lg rounded-3xl p-6 sm:p-10 shadow-xl mx-4">
+            <h2 className="text-2xl font-bold mb-6">Client Details</h2>
 
             <p><b>Name:</b> {clientModal.fullName}</p>
             <p><b>Email:</b> {clientModal.email}</p>
@@ -378,23 +370,14 @@ const CaregiverDashboard = () => {
             >
               Close
             </button>
-
           </div>
-
         </div>
-
       )}
 
-      {/* FAMILY MODAL */}
-
       {familyModal && (
-
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-
-          <div className="bg-white w-[700px] rounded-3xl p-10 shadow-xl overflow-y-auto max-h-[90vh]">
-
+          <div className="bg-white w-full max-w-2xl rounded-3xl p-6 sm:p-10 shadow-xl overflow-y-auto max-h-[90vh] mx-4">
             <div className="flex items-center gap-4 mb-6">
-
               {familyModal.photo && (
                 <img
                   src={`http://localhost:3000/uploads/${familyModal.photo}`}
@@ -403,19 +386,12 @@ const CaregiverDashboard = () => {
               )}
 
               <div>
-                <h2 className="text-xl font-bold">
-                  {familyModal.fullName}
-                </h2>
-
-                <p className="text-gray-500">
-                  Family Member
-                </p>
+                <h2 className="text-xl font-bold">{familyModal.fullName}</h2>
+                <p className="text-gray-500">Family Member</p>
               </div>
-
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-gray-700">
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-gray-700">
               <p><b>Age:</b> {familyModal.age}</p>
               <p><b>Gender:</b> {familyModal.gender}</p>
               <p><b>Phone:</b> {familyModal.phone}</p>
@@ -442,7 +418,6 @@ const CaregiverDashboard = () => {
               <p className="col-span-2">
                 <b>Notes:</b> {familyModal.notes}
               </p>
-
             </div>
 
             <button
@@ -451,13 +426,9 @@ const CaregiverDashboard = () => {
             >
               Close
             </button>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 };

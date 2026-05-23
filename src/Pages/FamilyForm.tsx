@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import FileUpload from "../Components/FileUpload";
 import { Input, Textarea } from "../Components/Form";
 import api from "../api/api";
+import MapPicker from "../Components/MapPicker";
 
-// Options for mobility level and chronic conditions
 const mobilityOptions = [
   "WALKS ALONE",
   "USES STICK",
@@ -24,10 +24,9 @@ const chronicOptions = [
 
 const FamilyFormPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // if id exists, we are editing
+  const { id } = useParams();
   const isEdit = Boolean(id);
 
-  // Form state
   const [form, setForm] = useState<any>({
     photo: null,
     fullName: "",
@@ -45,7 +44,14 @@ const FamilyFormPage = () => {
   });
 
   const [medicineInput, setMedicineInput] = useState("");
-  // Fetch profile data if editing
+  const [isMapOpen, setIsMapOpen] = useState(false);
+
+  const [location, setLocation] = useState<{
+    address: string;
+    lat: number;
+    lng: number;
+  } | null>(null);
+
   useEffect(() => {
     if (!isEdit) return;
 
@@ -54,9 +60,8 @@ const FamilyFormPage = () => {
         const res = await api.get(`/family/${id}`);
         const p = res.data;
 
-         // Set form state with fetched profile data
         setForm({
-          photo: p.photo || null, // string filename from backend
+          photo: p.photo || null,
           fullName: p.fullName || "",
           age: p.age?.toString() || "",
           gender: p.gender || "Male",
@@ -70,7 +75,15 @@ const FamilyFormPage = () => {
           currentMedicines: p.currentMedicines || [],
           notes: p.notes || "",
         });
-      } catch (err) {
+
+        if (p.parentLocation) {
+          setLocation({
+            address: p.livingAddress || "",
+            lat: p.parentLocation.lat,
+            lng: p.parentLocation.lng,
+          });
+        }
+      } catch {
         alert("Failed to load family profile");
         navigate("/client");
       }
@@ -92,38 +105,83 @@ const FamilyFormPage = () => {
   };
 
   const addMedicine = () => {
-  if (!medicineInput.trim()) return;
+    if (!medicineInput.trim()) return;
 
-  setForm({
-    ...form,
-    currentMedicines: [...form.currentMedicines, medicineInput.trim()],
-  });
-  setMedicineInput("");
-};
-
-const removeMedicine = (index: number) => {
     setForm({
       ...form,
-      currentMedicines: form.currentMedicines.filter((_: any, i: number) => i !== index),
+      currentMedicines: [...form.currentMedicines, medicineInput.trim()],
+    });
+    setMedicineInput("");
+  };
+
+  const removeMedicine = (index: number) => {
+    setForm({
+      ...form,
+      currentMedicines: form.currentMedicines.filter(
+        (_: any, i: number) => i !== index
+      ),
     });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-     // Basic frontend guard (prevents backend 500)
-    if (!form.fullName || !form.age || !form.gender) {
-      return alert("Full name, age and gender are required");
+    // Validation
+    const errors: string[] = [];
+
+    if (!form.fullName.trim())
+      errors.push("Full name is required");
+
+    if (!form.age || isNaN(Number(form.age)) ||
+        Number(form.age) < 1 || Number(form.age) > 120)
+      errors.push("Age must be a valid number (1–120)");
+
+    if (!form.gender)
+      errors.push("Gender is required");
+
+    if (form.phone && !/^\d{10}$/.test(
+      form.phone.trim()
+    ))
+      errors.push(
+        "Phone must be a valid 10-digit number"
+      );
+
+    if (form.emergencyContact && !/^\d{10}$/.test(
+      form.emergencyContact.trim()
+    ))
+      errors.push(
+        "Emergency contact must be a valid 10-digit number"
+      );
+
+    if (!form.mobilityLevel)
+      errors.push("Please select a mobility level");
+
+    if (!location)
+      errors.push(
+        "Please select the parent house location on the map"
+      );
+
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
     }
 
-    const data = new FormData();
+    const selectedLocation = location;
 
+    const data = new FormData();
     data.append("fullName", form.fullName);
     data.append("age", form.age);
     data.append("gender", form.gender);
     data.append("phone", form.phone);
     data.append("emergencyContact", form.emergencyContact);
     data.append("livingAddress", form.livingAddress);
+    data.append(
+      "parentLocation",
+      JSON.stringify({
+        lat: selectedLocation!.lat,
+        lng: selectedLocation!.lng,
+      })
+    );
     data.append("bloodGroup", form.bloodGroup);
     data.append("allergies", form.allergies);
     data.append("mobilityLevel", form.mobilityLevel);
@@ -131,7 +189,6 @@ const removeMedicine = (index: number) => {
     data.append("currentMedicines", JSON.stringify(form.currentMedicines));
     data.append("notes", form.notes);
 
-    // Only send photo if it is a NEW File
     if (form.photo instanceof File) {
       data.append("photo", form.photo);
     }
@@ -148,7 +205,6 @@ const removeMedicine = (index: number) => {
       alert(err.response?.data?.message || "Save failed");
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center py-16">
@@ -167,8 +223,19 @@ const removeMedicine = (index: number) => {
           />
 
           <div className="grid grid-cols-2 gap-6">
-            <Input label="FULL NAME" name="fullName" value={form.fullName} onChange={handleChange} />
-            <Input label="AGE" name="age" value={form.age} onChange={handleChange} inputMode="numeric" />
+            <Input
+              label="FULL NAME"
+              name="fullName"
+              value={form.fullName}
+              onChange={handleChange}
+            />
+            <Input
+              label="AGE"
+              name="age"
+              value={form.age}
+              onChange={handleChange}
+              inputMode="numeric"
+            />
           </div>
 
           <div>
@@ -186,27 +253,72 @@ const removeMedicine = (index: number) => {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <Input label="PHONE NUMBER" name="phone" value={form.phone} onChange={handleChange} />
-            <Input label="EMERGENCY CONTACT" name="emergencyContact" value={form.emergencyContact} onChange={handleChange} />
+            <Input
+              label="PHONE NUMBER"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+            />
+            <Input
+              label="EMERGENCY CONTACT"
+              name="emergencyContact"
+              value={form.emergencyContact}
+              onChange={handleChange}
+            />
           </div>
 
-          <Input label="LIVING ADDRESS" name="livingAddress" value={form.livingAddress} onChange={handleChange} />
+          <div>
+            <label className="block text-sm font-semibold mb-2">
+              Living Address
+            </label>
+
+            <input
+              type="text"
+              readOnly
+              value={form.livingAddress}
+              onClick={() => setIsMapOpen(true)}
+              placeholder="Click to select parent house location on map"
+              className="w-full border rounded-xl p-3 bg-white cursor-pointer"
+            />
+
+            <p className="text-xs text-gray-500 mt-2">
+              Click the input to open map picker and choose the exact house location.
+            </p>
+
+            {location && (
+              <p className="text-xs text-green-600 mt-2">
+                ✔ Location selected
+              </p>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-semibold mb-2">BLOOD GROUP</label>
+              <label className="block text-xs font-semibold mb-2">
+                BLOOD GROUP
+              </label>
               <select
                 name="bloodGroup"
                 value={form.bloodGroup}
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl bg-gray-100"
               >
-                {["O+","O-","A+","A-","B+","B-","AB+","AB-"].map((bg) => (
-                  <option key={bg} value={bg}>{bg}</option>
-                ))}
+                {["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"].map(
+                  (bg) => (
+                    <option key={bg} value={bg}>
+                      {bg}
+                    </option>
+                  )
+                )}
               </select>
             </div>
-            <Input label="ALLERGIES" name="allergies" value={form.allergies} onChange={handleChange} />
+
+            <Input
+              label="ALLERGIES"
+              name="allergies"
+              value={form.allergies}
+              onChange={handleChange}
+            />
           </div>
 
           <div>
@@ -218,7 +330,9 @@ const removeMedicine = (index: number) => {
                   key={option}
                   onClick={() => setForm({ ...form, mobilityLevel: option })}
                   className={`px-4 py-3 rounded-xl font-semibold border ${
-                    form.mobilityLevel === option ? "bg-[#4b5a3f] text-white" : "bg-gray-100"
+                    form.mobilityLevel === option
+                      ? "bg-[#4b5a3f] text-white"
+                      : "bg-gray-100"
                   }`}
                 >
                   {option}
@@ -236,7 +350,9 @@ const removeMedicine = (index: number) => {
                   key={condition}
                   onClick={() => toggleChronic(condition)}
                   className={`px-4 py-2 rounded-full font-semibold border ${
-                    form.chronicConditions.includes(condition) ? "bg-[#4b5a3f] text-white" : "bg-gray-100"
+                    form.chronicConditions.includes(condition)
+                      ? "bg-[#4b5a3f] text-white"
+                      : "bg-gray-100"
                   }`}
                 >
                   {condition}
@@ -246,7 +362,9 @@ const removeMedicine = (index: number) => {
           </div>
 
           <div>
-            <p className="text-xs font-semibold tracking-wide mb-4">CURRENT MEDICINES</p>
+            <p className="text-xs font-semibold tracking-wide mb-4">
+              CURRENT MEDICINES
+            </p>
 
             <div className="flex gap-4 mb-6">
               <input
@@ -285,7 +403,12 @@ const removeMedicine = (index: number) => {
             </div>
           </div>
 
-          <Textarea label="NOTES FOR CAREGIVER" name="notes" value={form.notes} onChange={handleChange} />
+          <Textarea
+            label="NOTES FOR CAREGIVER"
+            name="notes"
+            value={form.notes}
+            onChange={handleChange}
+          />
 
           <button
             type="submit"
@@ -295,6 +418,21 @@ const removeMedicine = (index: number) => {
           </button>
         </form>
       </div>
+
+      <MapPicker
+        isOpen={isMapOpen}
+        initialPosition={
+          location ? { lat: location.lat, lng: location.lng } : null
+        }
+        onClose={() => setIsMapOpen(false)}
+        onConfirm={(selected) => {
+          setLocation(selected);
+          setForm((prev: any) => ({
+            ...prev,
+            livingAddress: selected.address,
+          }));
+        }}
+      />
     </div>
   );
 };

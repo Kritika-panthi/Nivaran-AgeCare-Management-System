@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import api from "../api/api";
 import ClientForm from "../Components/ClientForm";
 
@@ -16,6 +18,7 @@ type ClientFormData = {
 };
 
 const ClientRegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<ClientFormData>({
     fullName: "",
     occupation: "",
@@ -39,6 +42,53 @@ const ClientRegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validation
+    const errors: string[] = [];
+
+    if (!formData.fullName.trim())
+      errors.push("Full name is required");
+
+    if (!formData.occupation.trim())
+      errors.push("Occupation is required");
+
+    if (!formData.dob)
+      errors.push("Date of birth is required");
+    else {
+      const dob = new Date(formData.dob);
+      const today = new Date();
+      const age = today.getFullYear() - dob.getFullYear();
+      if (age < 18)
+        errors.push("You must be at least 18 years old");
+    }
+
+    if (!formData.gender)
+      errors.push("Gender is required");
+
+    if (!formData.phone.trim() ||
+        !/^\d{10}$/.test(formData.phone.trim()))
+      errors.push("Phone must be a valid 10-digit number");
+
+    if (!formData.email.trim() ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+          formData.email.trim()
+        ))
+      errors.push("Valid email address is required");
+
+    if (!formData.password ||
+        formData.password.length < 6)
+      errors.push("Password must be at least 6 characters");
+
+    if (!formData.currentLocation.trim())
+      errors.push("Current location is required");
+
+    if (!formData.permanentAddress.trim())
+      errors.push("Permanent address is required");
+
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
+    }
+
     const data = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
@@ -61,7 +111,14 @@ const ClientRegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10 relative">
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 shadow-sm hover:shadow-md hover:text-gray-900 transition-all duration-200 z-10"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Home
+      </button>
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-3">
 
         {/* Left side Section */}

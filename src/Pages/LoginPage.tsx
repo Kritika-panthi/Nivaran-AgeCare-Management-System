@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
 import { Input } from "../Components/Form";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/authApi";
+import { ArrowLeft } from "lucide-react";
+import { loginUser, googleLoginApi } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
 import RoleSelectModal from "../Components/RoleSelectModal";
 
@@ -13,14 +15,21 @@ type LoginFormData = {
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [rememberMe, setRememberMe] = useState(() => {
+    return localStorage.getItem("rememberMe") === "true";
+  });
+
+  const [savedEmail] = useState(() => {
+    return localStorage.getItem("savedEmail") || "";
+  });
 
   const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
+    email: savedEmail,
     password: "",
   });
 
   const [loading, setLoading] = useState(false);
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,7 +41,18 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const res = await loginUser(formData);
+      const res = await loginUser({
+        ...formData,
+        rememberMe,
+      });
+
+      if (rememberMe) {
+        localStorage.setItem("rememberMe", "true");
+        localStorage.setItem("savedEmail", formData.email);
+      } else {
+        localStorage.removeItem("rememberMe");
+        localStorage.removeItem("savedEmail");
+      }
 
       login(res.data.token, res.data.role, res.data.fullName);
 
@@ -52,6 +72,36 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleSuccess = async (
+    credentialResponse: any
+  ) => {
+    try {
+      setLoading(true);
+      const res = await googleLoginApi({
+        credential: credentialResponse.credential,
+      });
+
+      login(
+        res.data.token,
+        res.data.role,
+        res.data.fullName
+      );
+
+      if (!res.data.profileComplete) {
+        navigate("/client/complete-profile");
+      } else {
+        navigate("/client");
+      }
+    } catch (error: any) {
+      alert(
+        error.response?.data?.message ||
+        "Google login failed"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
   <>
     <RoleSelectModal
@@ -59,7 +109,14 @@ const LoginPage = () => {
         onClose={() => setIsModalOpen(false)}
     />
     {/* left side section */}
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 relative">
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 shadow-sm hover:shadow-md hover:text-gray-900 transition-all duration-200 z-10"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Home
+      </button>
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
         <div className="hidden md:flex flex-col justify-center px-12 bg-[#323e26] text-white">
@@ -91,7 +148,7 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <Input
               label="PASSWORD"
               type="password"
@@ -101,6 +158,28 @@ const LoginPage = () => {
             />
           </div>
 
+          <div className="flex items-center justify-between mb-6">
+            <label className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) =>
+                  setRememberMe(e.target.checked)
+                }
+                className="w-4 h-4 cursor-pointer"
+                style={{ accentColor: "#323e26" }}
+              />
+              Remember me
+            </label>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm text-[#323e26] hover:underline font-medium"
+            >
+              Forgot password?
+            </button>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -108,6 +187,23 @@ const LoginPage = () => {
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
+
+          <div className="flex items-center gap-3 my-5">
+            <hr className="flex-1 border-gray-200" />
+            <span className="text-xs text-gray-400">OR</span>
+            <hr className="flex-1 border-gray-200" />
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => alert("Google login failed")}
+              useOneTap={false}
+              text="continue_with"
+              shape="rectangular"
+              width="320"
+            />
+          </div>
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Don’t have an account?{" "}

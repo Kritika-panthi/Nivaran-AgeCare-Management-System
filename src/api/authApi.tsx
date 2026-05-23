@@ -3,6 +3,7 @@ import api from "./api";
 export const loginUser = (data: {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }) => api.post("/auth/login", data);
 
 export const registerClient = (data: any) =>
@@ -77,7 +78,20 @@ export const createBooking = (data: {
   date: string;
   startTime: string;
   endTime: string;
+  parentLocation: {
+    lat: number;
+    lng: number;
+  };
 }) => api.post("/bookings", data);
+
+export const createMultiDayBooking = (data: {
+  caregiverId: string;
+  familyProfileId: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+}) => api.post("/bookings/multi-day", data);
 
 export const acceptCaregiverBooking = (id: string) =>
   api.put(`/caregivers/bookings/${id}/accept`);
@@ -103,3 +117,60 @@ export const markAllNotificationsAsRead = () =>
 
 export const getClientBookingHistory = (page = 1, limit = 3) =>
   api.get(`/client/bookings/history?page=${page}&limit=${limit}`);
+
+export const getBookingTrackingById = (id: string) =>
+  api.get(`/bookings/${id}/tracking`);
+
+// Google login
+export const googleLoginApi = (data: {
+  credential: string;
+}) => api.post("/auth/google", data);
+
+// Forgot / Reset password
+export const forgotPassword = (data: {
+  email: string;
+}) => api.post("/auth/forgot-password", data);
+
+export const resetPassword = (data: {
+  token: string;
+  email: string;
+  password: string;
+}) => api.post("/auth/reset-password", data);
+
+// Complete Google profile
+export const completeGoogleProfile = (data: {
+  phone: string;
+  occupation: string;
+  dob: string;
+  gender: string;
+  currentLocation: string;
+  permanentAddress: string;
+}) => api.post("/client/complete-profile", data);
+
+export const sendContactMessage = (data: {
+  fullName: string;
+  email: string;
+  subject: string;
+  message: string;
+}) => api.post("/auth/contact", data);
+
+// Payment
+export const initiatePayment = (data: {
+  bookingId: string;
+}) => api.post("/payment/initiate", data);
+
+export const verifyPayment = (pidx: string) =>
+  api.get(`/payment/verify?pidx=${pidx}`);
+
+// Admin
+export const getAllUsers = () =>
+  api.get("/admin/users");
+
+export const getAllCaregivers = () =>
+  api.get("/admin/caregivers");
+
+export const getAllBookings = () =>
+  api.get("/admin/bookings");
+
+export const toggleUserActive = (id: string) =>
+  api.patch(`/admin/users/${id}/toggle`);
