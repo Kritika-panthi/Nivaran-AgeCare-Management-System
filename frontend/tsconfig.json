@@ -1,0 +1,8 @@
+{
+  // Root config file that extends other configs
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
