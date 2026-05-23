@@ -1,6 +1,41 @@
+import axios from "axios";
 import FamilyProfile from "../models/familyProfile.js";
 
-// Create Family Profile
+const geocodeAddress = async (address) => {
+  if (!address || !address.trim()) return null;
+
+  const response = await axios.get(
+    "https://nominatim.openstreetmap.org/search",
+    {
+      params: {
+        q: address,
+        format: "jsonv2",
+        limit: 1,
+        addressdetails: 1,
+      },
+      headers: {
+        "User-Agent": "Nivaran-AgeCare-Management-System/1.0 (student-project)",
+        Accept: "application/json",
+      },
+      timeout: 15000,
+    }
+  );
+
+  if (!Array.isArray(response.data) || response.data.length === 0) {
+    return null;
+  }
+
+  const first = response.data[0];
+  const lat = Number(first.lat);
+  const lng = Number(first.lon);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  return { lat, lng };
+};
+
 export const createFamilyProfile = async (req, res) => {
   try {
     const {
@@ -16,42 +51,67 @@ export const createFamilyProfile = async (req, res) => {
       chronicConditions,
       currentMedicines,
       notes,
+      parentLocation,
     } = req.body;
 
-    // Basic validation
     if (!fullName || !age || !gender) {
-      return res.status(400).json({ message: "Full name, age and gender are required" });
+      return res
+        .status(400)
+        .json({ message: "Full name, age and gender are required" });
+    }
+
+    if (!livingAddress || !livingAddress.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Living address is required for family profile" });
+    }
+
+    let finalLocation = null;
+
+    if (parentLocation) {
+      const parsed = JSON.parse(parentLocation);
+      if (
+        typeof parsed.lat === "number" &&
+        typeof parsed.lng === "number"
+      ) {
+        finalLocation = parsed;
+      }
+    }
+
+    if (!finalLocation) {
+      finalLocation = await geocodeAddress(livingAddress);
+    }
+
+    if (!finalLocation) {
+      return res.status(400).json({
+        message:
+          "Could not determine parent house location. Please select it again on the map.",
+      });
     }
 
     const profile = await FamilyProfile.create({
       client: req.user._id,
       photo: req.file ? req.file.filename : null,
-
       fullName,
       age: Number(age),
       gender,
-
       phone,
       emergencyContact,
       livingAddress,
-
+      parentLocation: finalLocation,
       bloodGroup,
       allergies,
-
       mobilityLevel: mobilityLevel || "NONE",
-
       chronicConditions: chronicConditions
         ? Array.isArray(chronicConditions)
           ? chronicConditions
           : JSON.parse(chronicConditions)
         : [],
-
       currentMedicines: currentMedicines
         ? Array.isArray(currentMedicines)
           ? currentMedicines
           : JSON.parse(currentMedicines)
         : [],
-
       notes,
     });
 
@@ -62,7 +122,6 @@ export const createFamilyProfile = async (req, res) => {
   }
 };
 
-// Get All Family Profiles for logged-in client
 export const getFamilyProfiles = async (req, res) => {
   try {
     const profiles = await FamilyProfile.find({
@@ -75,7 +134,6 @@ export const getFamilyProfiles = async (req, res) => {
   }
 };
 
-// Get Single Family Profile by ID
 export const getFamilyProfileById = async (req, res) => {
   try {
     const profile = await FamilyProfile.findOne({
@@ -93,7 +151,6 @@ export const getFamilyProfileById = async (req, res) => {
   }
 };
 
-// Update Family Profile
 export const updateFamilyProfile = async (req, res) => {
   try {
     const {
@@ -109,9 +166,9 @@ export const updateFamilyProfile = async (req, res) => {
       chronicConditions,
       currentMedicines,
       notes,
+      parentLocation,
     } = req.body;
 
-    // Find profile and ensure ownership
     const profile = await FamilyProfile.findOne({
       _id: req.params.id,
       client: req.user._id,
@@ -124,14 +181,50 @@ export const updateFamilyProfile = async (req, res) => {
     if (fullName !== undefined) profile.fullName = fullName;
     if (age !== undefined) profile.age = Number(age);
     if (gender !== undefined) profile.gender = gender;
-
     if (phone !== undefined) profile.phone = phone;
-    if (emergencyContact !== undefined) profile.emergencyContact = emergencyContact;
-    if (livingAddress !== undefined) profile.livingAddress = livingAddress;
+    if (emergencyContact !== undefined) {
+      profile.emergencyContact = emergencyContact;
+    }
+
+    if (livingAddress !== undefined) {
+      profile.livingAddress = livingAddress;
+    }
+
+    let finalLocation = null;
+
+    // PRIORITY 1 → use map location
+    if (parentLocation) {
+      try {
+        const parsed = JSON.parse(parentLocation);
+
+        if (
+          typeof parsed.lat === "number" &&
+          typeof parsed.lng === "number"
+        ) {
+          finalLocation = parsed;
+        } else {
+          console.log("Invalid lat/lng format:", parsed);
+        }
+      } catch (err) {
+        console.log("Failed to parse parentLocation:", parentLocation);
+      }
+    }
+
+    // PRIORITY 2 → fallback to geocode
+    if (!finalLocation && livingAddress && livingAddress.trim()) {
+      finalLocation = await geocodeAddress(livingAddress);
+    }
+
+    if (!finalLocation) {
+      return res.status(400).json({
+        message: "Could not determine parent location",
+      });
+    }
+
+    profile.parentLocation = finalLocation;
 
     if (bloodGroup !== undefined) profile.bloodGroup = bloodGroup;
     if (allergies !== undefined) profile.allergies = allergies;
-
     if (mobilityLevel !== undefined) profile.mobilityLevel = mobilityLevel;
 
     if (chronicConditions !== undefined) {
@@ -152,7 +245,6 @@ export const updateFamilyProfile = async (req, res) => {
 
     if (notes !== undefined) profile.notes = notes;
 
-    // Update photo only if a new one was uploaded
     if (req.file) {
       profile.photo = req.file.filename;
     }
@@ -166,7 +258,6 @@ export const updateFamilyProfile = async (req, res) => {
   }
 };
 
-// Delete Family Profile
 export const deleteFamilyProfile = async (req, res) => {
   try {
     const deleted = await FamilyProfile.findOneAndDelete({

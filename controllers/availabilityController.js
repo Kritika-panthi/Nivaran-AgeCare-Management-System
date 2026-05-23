@@ -182,11 +182,23 @@ export const getAvailableSlotsForCaregiver = async (req, res) => {
       status: { $in: ["pending", "confirmed"] },
     });
 
+    // Fetch client's existing bookings on this date
+    // to prevent double booking across caregivers
+    let clientBookings = [];
+    if (req.user) {
+      clientBookings = await Booking.find({
+        client: req.user._id,
+        date: d,
+        status: { $in: ["pending", "confirmed"] },
+      });
+    }
+
     const availableRanges = [];
 
     for (const range of weekly.timeRanges) {
       let isBlocked = false;
 
+      // Check if caregiver is already booked in this slot
       for (const booking of bookings) {
         if (
           overlaps(
@@ -198,6 +210,24 @@ export const getAvailableSlotsForCaregiver = async (req, res) => {
         ) {
           isBlocked = true;
           break;
+        }
+      }
+
+      // Check if this client already has a booking in
+      // this slot (any caregiver)
+      if (!isBlocked) {
+        for (const booking of clientBookings) {
+          if (
+            overlaps(
+              range.startTime,
+              range.endTime,
+              booking.startTime,
+              booking.endTime
+            )
+          ) {
+            isBlocked = true;
+            break;
+          }
         }
       }
 

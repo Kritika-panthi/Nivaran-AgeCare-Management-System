@@ -56,6 +56,69 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
       index: true,
     },
+
+    paymentStatus: {
+      type: String,
+      enum: ["unpaid", "paid", "failed", "refunded"],
+      default: "unpaid",
+      index: true,
+    },
+
+    transactionId: {
+      type: String,
+      default: null,
+    },
+
+    transactionCode: {
+      type: String,
+      default: null,
+    },
+
+    paidAt: {
+      type: Date,
+      default: null,
+    },
+
+    tracking: {
+      parentLocation: {
+        lat: {
+          type: Number,
+        },
+        lng: {
+          type: Number,
+        },
+      },
+
+      caregiverLocation: {
+        lat: {
+          type: Number,
+        },
+        lng: {
+          type: Number,
+        },
+        updatedAt: {
+          type: Date,
+        },
+      },
+
+      distance: {
+        type: Number,
+      },
+
+      status: {
+        type: String,
+        enum: ["PENDING", "IN", "OUT"],
+        default: "PENDING",
+      },
+
+      enteredAt: {
+        type: Date,
+      },
+
+      leftAt: {
+        type: Date,
+      },
+    }, 
   },
   { timestamps: true }
 );

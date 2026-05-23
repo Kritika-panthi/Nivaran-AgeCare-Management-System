@@ -136,9 +136,15 @@ export const getClientBookingHistory = async (req, res) => {
       status: booking.status,
       totalAmount: booking.totalAmount,
       hours: booking.hours,
-      caregiverName: booking.caregiver?.user?.fullName || "Unknown Caregiver",
+      caregiverName:
+        booking.caregiver?.user?.fullName ||
+        "Unknown Caregiver",
       familyMemberName:
-        booking.familyProfile?.fullName || "Unknown Family Member",
+        booking.familyProfile?.fullName ||
+        "Unknown Family Member",
+      paymentStatus: booking.paymentStatus || "unpaid",
+      transactionCode: booking.transactionCode || null,
+      paidAt: booking.paidAt || null,
     }));
 
     res.json({
@@ -151,6 +157,62 @@ export const getClientBookingHistory = async (req, res) => {
         hasNextPage: page < Math.ceil(totalBookings / limit),
         hasPrevPage: page > 1,
       },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const completeGoogleProfile = async (req, res) => {
+  try {
+    const {
+      phone,
+      occupation,
+      dob,
+      gender,
+      currentLocation,
+      permanentAddress,
+    } = req.body;
+
+    if (
+      !phone ||
+      !occupation ||
+      !dob ||
+      !gender ||
+      !currentLocation ||
+      !permanentAddress
+    ) {
+      return res.status(400).json({
+        message: "All fields are required"
+      });
+    }
+
+    // Check if profile already exists
+    const existing = await Client.findOne({
+      user: req.user._id,
+    });
+    if (existing) {
+      return res.status(400).json({
+        message: "Profile already complete"
+      });
+    }
+
+    await Client.create({
+      user: req.user._id,
+      phone,
+      occupation,
+      dob,
+      gender,
+      currentLocation,
+      permanentAddress,
+    });
+
+    await User.findByIdAndUpdate(req.user._id, {
+      isProfileComplete: true,
+    });
+
+    res.json({
+      message: "Profile completed successfully"
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

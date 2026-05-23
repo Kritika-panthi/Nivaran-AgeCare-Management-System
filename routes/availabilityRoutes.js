@@ -36,6 +36,10 @@ router.delete(
 );
 
 
-router.get("/slots", getAvailableSlotsForCaregiver);
+router.get(
+  "/slots",
+  authMiddleware,
+  getAvailableSlotsForCaregiver
+);
 
 export default router;

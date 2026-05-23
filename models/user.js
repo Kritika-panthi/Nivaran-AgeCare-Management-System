@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 
-// Define schema for User collection (main authentication table)
+// Define schema for User collection
 const userSchema = new mongoose.Schema(
   {
-    // Full name of the user
     fullName: {
       type: String,
       required: true,
@@ -19,7 +18,8 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
     },
 
     // Role of the user (determines access level)
@@ -32,6 +32,26 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+
+    googleId: {
+      type: String,
+      default: null,
+    },
+
+    isProfileComplete: {
+      type: Boolean,
+      default: false,
+    },
+
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+
+    passwordResetExpires: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

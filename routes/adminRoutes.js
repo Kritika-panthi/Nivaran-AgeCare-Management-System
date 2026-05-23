@@ -7,6 +7,10 @@ import {
   rejectCaregiver,
   getCaregiverById,
   getAdminStats,
+  getAllUsers,
+  getAllCaregivers,
+  getAllBookings,
+  deactivateUser,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -18,4 +22,8 @@ router.get("/caregivers/pending", getPendingCaregivers);
 router.get("/caregivers/:id", getCaregiverById);          
 router.put("/caregivers/approve/:id", approveCaregiver);
 router.delete("/caregivers/reject/:id", rejectCaregiver);
+router.get("/users", getAllUsers);
+router.patch("/users/:id/toggle", deactivateUser);
+router.get("/caregivers", getAllCaregivers);
+router.get("/bookings", getAllBookings);
 export default router;

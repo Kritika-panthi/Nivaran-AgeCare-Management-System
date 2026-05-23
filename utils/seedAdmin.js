@@ -17,13 +17,26 @@ const seedAdmin = async () => {
       process.exit();
     }
 
-    // HashPassword
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminName = process.env.ADMIN_NAME;
+
+    if (!adminPassword || !adminEmail || !adminName) {
+      console.error(
+        "Missing ADMIN_EMAIL, ADMIN_NAME or " +
+        "ADMIN_PASSWORD in .env file"
+      );
+      process.exit(1);
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      adminPassword, 10
+    );
 
     // CreateAdminUser
     await User.create({
-      fullName: "System Admin",
-      email: "admin@nivaran.com",
+      fullName: adminName,
+      email: adminEmail,
       password: hashedPassword,
       role: "admin",
       isActive: true,

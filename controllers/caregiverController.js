@@ -4,6 +4,7 @@ import Availability from "../models/availability.js";
 import Client from "../models/client.js";
 import User from "../models/user.js";
 import createNotification from "../utils/createNotification.js";
+import sendEmail from "../utils/sendEmail.js";
 
 // Helper function to format booking data for dashboard cards
 const formatBookingCard = async (booking) => {
@@ -42,6 +43,13 @@ const formatBookingCard = async (booking) => {
       notes: booking.familyProfile?.notes || "",
       photo: booking.familyProfile?.photo || "",
     },
+
+    tracking: {
+    parentLocation: booking.tracking?.parentLocation || null,
+    caregiverLocation: booking.tracking?.caregiverLocation || null,
+    status: booking.tracking?.status || "PENDING",
+    distance: booking.tracking?.distance || 0,
+  },
   };
 };
 
@@ -143,6 +151,74 @@ export const acceptBooking = async (req, res) => {
       },
     });
 
+    // Send email to client — booking accepted
+    const clientUser = await User.findById(booking.client)
+      .select("email fullName");
+
+    const bookingDate = new Date(booking.date)
+      .toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+    if (clientUser?.email) {
+      await sendEmail({
+        to: clientUser.email,
+        subject: "Booking Accepted — Nivaran",
+        html: `
+        <div style="font-family:sans-serif;max-width:520px;
+                    margin:auto;padding:24px;
+                    border:1px solid #e5e7eb;
+                    border-radius:12px;">
+          <h2 style="color:#2E4E3F;">
+            Booking Accepted ✓
+          </h2>
+          <p>Hi <strong>${clientUser.fullName}</strong>,</p>
+          <p>Great news! Your booking has been
+             <strong>accepted</strong> by your caregiver.
+          </p>
+          <table style="width:100%;border-collapse:collapse;
+                        margin:16px 0;">
+            <tr>
+              <td style="padding:8px 0;color:#6b7280;">
+                Caregiver
+              </td>
+              <td style="padding:8px 0;font-weight:600;">
+                ${caregiver.user.fullName}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:#6b7280;">
+                Date
+              </td>
+              <td style="padding:8px 0;font-weight:600;">
+                ${bookingDate}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:#6b7280;">
+                Time
+              </td>
+              <td style="padding:8px 0;font-weight:600;">
+                ${booking.startTime} – ${booking.endTime}
+              </td>
+            </tr>
+          </table>
+          <p style="color:#6b7280;font-size:13px;">
+            You can track your caregiver on Nivaran
+            on the day of the booking.
+          </p>
+          <p style="color:#2E4E3F;font-weight:600;
+                    margin-top:24px;">
+            — Nivaran Team
+          </p>
+        </div>
+      `,
+      });
+    }
+
     res.json({ message: "Booking accepted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -185,6 +261,74 @@ export const declineBooking = async (req, res) => {
         endTime: booking.endTime,
       },
     });
+
+    // Send email to client — booking declined
+    const clientUser = await User.findById(booking.client)
+      .select("email fullName");
+
+    const bookingDate = new Date(booking.date)
+      .toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+    if (clientUser?.email) {
+      await sendEmail({
+        to: clientUser.email,
+        subject: "Booking Declined — Nivaran",
+        html: `
+        <div style="font-family:sans-serif;max-width:520px;
+                    margin:auto;padding:24px;
+                    border:1px solid #e5e7eb;
+                    border-radius:12px;">
+          <h2 style="color:#e74c3c;">
+            Booking Declined
+          </h2>
+          <p>Hi <strong>${clientUser.fullName}</strong>,</p>
+          <p>Unfortunately your booking request has been
+             <strong>declined</strong> by the caregiver.
+          </p>
+          <table style="width:100%;border-collapse:collapse;
+                        margin:16px 0;">
+            <tr>
+              <td style="padding:8px 0;color:#6b7280;">
+                Caregiver
+              </td>
+              <td style="padding:8px 0;font-weight:600;">
+                ${caregiver.user.fullName}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:#6b7280;">
+                Date
+              </td>
+              <td style="padding:8px 0;font-weight:600;">
+                ${bookingDate}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:#6b7280;">
+                Time
+              </td>
+              <td style="padding:8px 0;font-weight:600;">
+                ${booking.startTime} – ${booking.endTime}
+              </td>
+            </tr>
+          </table>
+          <p style="color:#6b7280;font-size:13px;">
+            You can search for another available caregiver
+            on Nivaran.
+          </p>
+          <p style="color:#2E4E3F;font-weight:600;
+                    margin-top:24px;">
+            — Nivaran Team
+          </p>
+        </div>
+      `,
+      });
+    }
 
     res.json({ message: "Booking declined successfully" });
   } catch (error) {

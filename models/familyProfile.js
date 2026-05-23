@@ -40,6 +40,16 @@ const familyProfileSchema = new mongoose.Schema(
       type: String,
     },
 
+    parentLocation: {
+      lat: {
+        type: Number,
+      },
+      lng: {
+        type: Number,
+      },
+    },
+
+
     bloodGroup: {
       type: String,
       enum: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"],

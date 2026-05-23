@@ -7,6 +7,7 @@ import {
   getClientProfile,
   updateClientProfile,
   getClientBookingHistory,
+  completeGoogleProfile,
 } from "../controllers/clientController.js";
 
 const router = express.Router();
@@ -17,6 +18,12 @@ router.get("/stats", getClientStats);
 router.get("/profile", getClientProfile);
 router.get("/bookings/history", getClientBookingHistory);
 router.put("/profile", upload.single("profilePhoto"), updateClientProfile);
+router.post(
+  "/complete-profile",
+  authMiddleware,
+  roleMiddleware("client"),
+  completeGoogleProfile
+);
 
 
 export default router;

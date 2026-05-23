@@ -3,6 +3,10 @@ import {
   registerClient,
   registerCaregiver,
   loginUser,
+  googleLogin,
+  forgotPassword,
+  resetPassword,
+  sendContactMessage,
 } from "../controllers/authController.js";
 import upload from "../middlewares/uploadMiddleware.js";
 
@@ -25,5 +29,9 @@ router.post(
 );
 
 router.post("/login", loginUser);
+router.post("/google", googleLogin);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+router.post("/contact", sendContactMessage);
 
 export default router;
