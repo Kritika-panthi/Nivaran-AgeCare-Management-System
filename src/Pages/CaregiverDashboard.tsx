@@ -170,7 +170,7 @@ const CaregiverDashboard = () => {
                   className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition"
                 >
                   <div className="flex items-center gap-3 sm:gap-5">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden flex-shrink-0">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden shrink-0">
                       {booking.client.photo ? (
                         <img
                           src={`http://localhost:3000/uploads/${booking.client.photo}`}
@@ -264,7 +264,7 @@ const CaregiverDashboard = () => {
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div className="flex items-center gap-3 sm:gap-5">
-                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden flex-shrink-0">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 overflow-hidden shrink-0">
                         {booking.client.photo ? (
                           <img
                             src={`http://localhost:3000/uploads/${booking.client.photo}`}

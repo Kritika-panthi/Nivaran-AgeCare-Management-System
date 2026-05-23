@@ -264,7 +264,7 @@ const CaregiverAvailabilityPage = () => {
         </div>
 
         <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="w-full lg:w-2/5 lg:flex-shrink-0">
+          <div className="w-full lg:w-2/5 lg:shrink-0">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center gap-3">
                 <button

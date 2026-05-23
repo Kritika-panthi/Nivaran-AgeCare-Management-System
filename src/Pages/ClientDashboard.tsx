@@ -215,7 +215,7 @@ const ClientDashboard = () => {
                           {booking.familyMemberName}
                         </p>
                       </div>
-                      <p className="font-bold text-sm text-gray-900 flex-shrink-0">
+                      <p className="font-bold text-sm text-gray-900 shrink-0">
                         Rs. {booking.totalAmount}
                       </p>
                     </div>
@@ -350,7 +350,7 @@ const ClientDashboard = () => {
             </div>
             <button
               onClick={() => navigate("/client/familyform")}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition flex-shrink-0"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition shrink-0"
               style={{ backgroundColor: "#2E4E3F" }}
             >
               + Add New Profile

@@ -748,7 +748,7 @@ const AdminDashboard = () => {
 
           <div className="p-6 space-y-5">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+              <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 bg-gray-100">
                 {selectedCaregiver.profilePhoto ? (
                   <img
                     src={`http://localhost:3000/uploads/${selectedCaregiver.profilePhoto}`}

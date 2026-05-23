@@ -125,7 +125,7 @@ const ClientRegisterPage = () => {
       <div
         className="fixed top-5 left-1/2
                    -translate-x-1/2
-                   z-[99999]
+                   z-99999
                    w-full max-w-md px-4"
       >
         <Toast

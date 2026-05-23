@@ -110,7 +110,7 @@ const Toast = ({
     >
       {/* Main content */}
       <div className="flex items-start gap-3 px-4 py-4">
-        <div className={`mt-0.5 flex-shrink-0 ${s.icon}`}>
+        <div className={`mt-0.5 shrink-0 ${s.icon}`}>
           <IconComp className="w-5 h-5" />
         </div>
 
@@ -130,7 +130,7 @@ const Toast = ({
             setVisible(false);
             setTimeout(onClose, 300);
           }}
-          className="flex-shrink-0 text-gray-300
+          className="shrink-0 text-gray-300
                      hover:text-gray-500 transition
                      mt-0.5 ml-1"
           aria-label="Close"
