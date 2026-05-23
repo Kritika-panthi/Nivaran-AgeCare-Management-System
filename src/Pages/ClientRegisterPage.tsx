@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/api";
 import ClientForm from "../Components/ClientForm";
+import Toast, { useToast } from "../Components/Toast";
 
 type ClientFormData = {
   fullName: string;
@@ -19,6 +20,7 @@ type ClientFormData = {
 
 const ClientRegisterPage = () => {
   const navigate = useNavigate();
+  const { toast, showToast, hideToast } = useToast();
   const [formData, setFormData] = useState<ClientFormData>({
     fullName: "",
     occupation: "",
@@ -85,7 +87,7 @@ const ClientRegisterPage = () => {
       errors.push("Permanent address is required");
 
     if (errors.length > 0) {
-      alert(errors.join("\n"));
+      showToast(errors[0], "error");
       return;
     }
 
@@ -104,21 +106,36 @@ const ClientRegisterPage = () => {
         },
       });
 
-      alert("Client registered successfully");
+      showToast(
+        "Account created successfully! You can now sign in.",
+        "success"
+      );
     } catch (error: any) {
-      alert(error.response?.data?.message || "Registration failed");
+      showToast(
+        error.response?.data?.message ||
+        "Registration failed",
+        "error"
+      );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10 relative">
-      <button
-        onClick={() => navigate("/")}
-        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 shadow-sm hover:shadow-md hover:text-gray-900 transition-all duration-200 z-10"
+    <>
+    {toast && (
+      <div
+        className="fixed top-5 left-1/2
+                   -translate-x-1/2
+                   z-[99999]
+                   w-full max-w-md px-4"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Home
-      </button>
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      </div>
+    )}
+    <div className="min-h-screen bg-gray-200 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-3">
 
         {/* Left side Section */}
@@ -134,8 +151,16 @@ const ClientRegisterPage = () => {
         {/* Form Section */}
         <form
           onSubmit={handleSubmit}
-          className="md:col-span-2 px-10 md:px-16 py-14"
+          className="md:col-span-2 px-10 md:px-16 py-10"
         >
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition mb-6 group"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            Back to Home
+          </button>
           <h1 className="text-3xl font-semibold mb-1">
             Client Registration
           </h1>
@@ -164,6 +189,7 @@ const ClientRegisterPage = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

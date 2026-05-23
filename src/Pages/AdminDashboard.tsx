@@ -101,6 +101,11 @@ const AdminDashboard = () => {
   const [selectedCaregiver, setSelectedCaregiver] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [userPage, setUserPage] = useState(1);
+  const [caregiverPage, setCaregiverPage] = useState(1);
+  const [bookingPage, setBookingPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
     setSearch("");
@@ -200,6 +205,36 @@ const AdminDashboard = () => {
     (b) =>
       b.clientName.toLowerCase().includes(search.toLowerCase()) ||
       b.caregiverName.toLowerCase().includes(search.toLowerCase())
+  );
+
+    // Users Pagination
+  const totalUserPages = Math.ceil(
+    filteredUsers.length / ITEMS_PER_PAGE
+  );
+
+  const paginatedUsers = filteredUsers.slice(
+    (userPage - 1) * ITEMS_PER_PAGE,
+    userPage * ITEMS_PER_PAGE
+  );
+
+  // Caregivers Pagination
+  const totalCaregiverPages = Math.ceil(
+    filteredCaregivers.length / ITEMS_PER_PAGE
+  );
+
+  const paginatedCaregivers = filteredCaregivers.slice(
+    (caregiverPage - 1) * ITEMS_PER_PAGE,
+    caregiverPage * ITEMS_PER_PAGE
+  );
+
+  // Bookings Pagination
+  const totalBookingPages = Math.ceil(
+    filteredBookings.length / ITEMS_PER_PAGE
+  );
+
+  const paginatedBookings = filteredBookings.slice(
+    (bookingPage - 1) * ITEMS_PER_PAGE,
+    bookingPage * ITEMS_PER_PAGE
   );
 
   const renderOverview = () => (
@@ -322,7 +357,7 @@ const AdminDashboard = () => {
                 </td>
               </tr>
             ) : (
-              filteredUsers.map((user) => (
+              paginatedUsers.map((user) => (
                 <tr key={user._id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -391,6 +426,37 @@ const AdminDashboard = () => {
         </table>
         </div>
       </div>
+      <div className="flex justify-center items-center gap-2 mt-6">
+        <button
+          disabled={userPage === 1}
+          onClick={() => setUserPage((prev) => prev - 1)}
+          className="px-4 py-2 rounded-lg border disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        {[...Array(totalUserPages)].map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setUserPage(i + 1)}
+            className={`px-4 py-2 rounded-lg border ${
+              userPage === i + 1
+                ? "bg-[#2E4E3F] text-white"
+                : "bg-white"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          disabled={userPage === totalUserPages}
+          onClick={() => setUserPage((prev) => prev + 1)}
+          className="px-4 py-2 rounded-lg border disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 
@@ -435,7 +501,7 @@ const AdminDashboard = () => {
                 </td>
               </tr>
             ) : (
-              filteredCaregivers.map((c) => (
+              paginatedCaregivers.map((c) => (
                 <tr key={c._id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -508,6 +574,37 @@ const AdminDashboard = () => {
         </table>
         </div>
       </div>
+      <div className="flex justify-center items-center gap-2 mt-6">
+        <button
+          disabled={caregiverPage === 1}
+          onClick={() => setCaregiverPage((prev) => prev - 1)}
+          className="px-4 py-2 rounded-lg border disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        {[...Array(totalCaregiverPages)].map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCaregiverPage(i + 1)}
+            className={`px-4 py-2 rounded-lg border ${
+              caregiverPage === i + 1
+                ? "bg-[#2E4E3F] text-white"
+                : "bg-white"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          disabled={caregiverPage === totalCaregiverPages}
+          onClick={() => setCaregiverPage((prev) => prev + 1)}
+          className="px-4 py-2 rounded-lg border disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 
@@ -558,7 +655,7 @@ const AdminDashboard = () => {
                 </td>
               </tr>
             ) : (
-              filteredBookings.map((b) => (
+             paginatedBookings.map((b) => (
                 <tr key={b._id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     {b.clientName}
@@ -599,6 +696,37 @@ const AdminDashboard = () => {
           </tbody>
         </table>
         </div>
+      </div>
+        <div className="flex justify-center items-center gap-2 mt-6">
+        <button
+          disabled={bookingPage === 1}
+          onClick={() => setBookingPage((prev) => prev - 1)}
+          className="px-4 py-2 rounded-lg border disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        {[...Array(totalBookingPages)].map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setBookingPage(i + 1)}
+            className={`px-4 py-2 rounded-lg border ${
+              bookingPage === i + 1
+                ? "bg-[#2E4E3F] text-white"
+                : "bg-white"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          disabled={bookingPage === totalBookingPages}
+          onClick={() => setBookingPage((prev) => prev + 1)}
+          className="px-4 py-2 rounded-lg border disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

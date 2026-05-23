@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input, Textarea } from "../Components/Form";
 import FileUpload from "../Components/FileUpload";
+import Toast, { useToast } from "../Components/Toast";
 import {
   getCaregiverProfile,
   updateCaregiverProfile,
@@ -41,6 +42,7 @@ type CaregiverProfileData = {
 };
 
 const CaregiverProfilePage = () => {
+  const { toast, showToast, hideToast } = useToast();
   const [formData, setFormData] =
     useState<CaregiverProfileData>({
       fullName: "",
@@ -133,14 +135,18 @@ const CaregiverProfilePage = () => {
 
     try {
       await updateCaregiverProfile(data);
-      alert("Profile updated successfully");
+      showToast(
+          "Profile updated successfully",
+          "success"
+        );
 
       // Refresh profile
       const updated = await getCaregiverProfile();
       setFormData(updated.data);
     } catch (err: any) {
-      alert(
-        err.response?.data?.message || "Update failed"
+      showToast(
+        err.response?.data?.message || "Update failed",
+        "error"
       );
     } finally {
       setSaving(false);
@@ -156,6 +162,21 @@ const CaregiverProfilePage = () => {
   }
 
   return (
+    <>
+  {toast && (
+      <div
+        className="fixed top-5 left-1/2
+                   -translate-x-1/2
+                   z-[99999]
+                   w-full max-w-md px-4"
+      >
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      </div>
+    )}
     <div className="min-h-screen bg-gray-100 px-6 py-12">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-12">
         <div className="flex items-center justify-between mb-2">
@@ -374,6 +395,7 @@ const CaregiverProfilePage = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

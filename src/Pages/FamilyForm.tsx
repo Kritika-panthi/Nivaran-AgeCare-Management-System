@@ -4,6 +4,7 @@ import FileUpload from "../Components/FileUpload";
 import { Input, Textarea } from "../Components/Form";
 import api from "../api/api";
 import MapPicker from "../Components/MapPicker";
+import Toast, { useToast } from "../Components/Toast";
 
 const mobilityOptions = [
   "WALKS ALONE",
@@ -24,6 +25,7 @@ const chronicOptions = [
 
 const FamilyFormPage = () => {
   const navigate = useNavigate();
+  const { toast, showToast, hideToast } = useToast();
   const { id } = useParams();
   const isEdit = Boolean(id);
 
@@ -162,7 +164,7 @@ const FamilyFormPage = () => {
       );
 
     if (errors.length > 0) {
-      alert(errors.join("\n"));
+      showToast(errors[0], "error");
       return;
     }
 
@@ -199,14 +201,41 @@ const FamilyFormPage = () => {
       } else {
         await api.post("/family", data);
       }
+      showToast(
+        isEdit
+          ? "Family profile updated successfully"
+          : "Family profile registered successfully",
+        "success"
+      );
 
-      navigate("/client");
+      setTimeout(() => {
+        navigate("/client");
+      }, 1500);
     } catch (err: any) {
-      alert(err.response?.data?.message || "Save failed");
+      showToast(
+      err.response?.data?.message || "Save failed",
+      "error"
+    );
     }
   };
 
   return (
+    <>
+  {toast && (
+      <div
+        className="fixed top-5 left-1/2
+                   -translate-x-1/2
+                   z-[99999]
+                   w-full max-w-md px-4"
+      >
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      </div>
+    )}
+
     <div className="min-h-screen bg-gray-100 flex justify-center py-16">
       <div className="bg-white w-[900px] rounded-3xl shadow-xl p-12">
         <h1 className="text-3xl font-bold mb-1">
@@ -287,7 +316,7 @@ const FamilyFormPage = () => {
 
             {location && (
               <p className="text-xs text-green-600 mt-2">
-                ✔ Location selected
+                Location selected
               </p>
             )}
           </div>
@@ -434,6 +463,7 @@ const FamilyFormPage = () => {
         }}
       />
     </div>
+    </>
   );
 };
 

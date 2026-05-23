@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { loginUser, googleLoginApi } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
 import RoleSelectModal from "../Components/RoleSelectModal";
+import Toast, { type ToastType } from "../Components/Toast";
 
 type LoginFormData = {
   email: string;
@@ -30,6 +31,24 @@ const LoginPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toast, setToast] = useState<{
+    id: number;
+    message: string;
+    type: ToastType;
+  } | null>(null);
+
+  const showToast = (
+    message: string,
+    type: ToastType = "error"
+  ) => {
+    setToast({
+      id: Date.now(),
+      message,
+      type,
+    });
+  };
+
+  const hideToast = () => setToast(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,11 +85,32 @@ const LoginPage = () => {
       }
 
     } catch (error: any) {
-      alert(error.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
+    console.log("FULL ERROR:", error);
+
+    const status = error?.response?.status;
+    const message =
+      error?.response?.data?.message || "";
+
+    let errorMessage = "Login failed";
+
+    if (status === 404) {
+      errorMessage = "User not found";
+    } else if (status === 400) {
+      errorMessage = "Invalid credentials";
+    } else if (status === 403) {
+      errorMessage = message;
+    } else if (message) {
+      errorMessage = message;
     }
-  };
+
+    showToast(errorMessage, "error");
+
+    console.log("Toast shown:", errorMessage);
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleGoogleSuccess = async (
     credentialResponse: any
@@ -93,9 +133,10 @@ const LoginPage = () => {
         navigate("/client");
       }
     } catch (error: any) {
-      alert(
+      showToast(
         error.response?.data?.message ||
-        "Google login failed"
+        "Google login failed",
+        "error"
       );
     } finally {
       setLoading(false);
@@ -108,15 +149,25 @@ const LoginPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
     />
+    {/* Fixed toast notification at top of screen */}
+    {toast && (
+  <div
+    className="fixed top-5 left-1/2
+               -translate-x-1/2
+               z-[99999]
+               w-full max-w-md px-4"
+  >
+    <Toast
+    key={toast.id}
+      message={toast.message}
+      type={toast.type}
+      onClose={hideToast}
+      duration={5000}
+    />
+  </div>
+)}
     {/* left side section */}
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 relative">
-      <button
-        onClick={() => navigate("/")}
-        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 shadow-sm hover:shadow-md hover:text-gray-900 transition-all duration-200 z-10"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Home
-      </button>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
         <div className="hidden md:flex flex-col justify-center px-12 bg-[#323e26] text-white">
@@ -131,8 +182,16 @@ const LoginPage = () => {
        {/* Hanldling Login form */}
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col justify-center px-8 md:px-14 py-14"
+          className="flex flex-col justify-center px-8 md:px-14 py-10 relative"
         >
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition mb-6 group"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            Back to Home
+          </button>
           <h2 className="text-3xl font-semibold mb-2">Sign In</h2>
           <p className="text-gray-500 mb-8">
             Enter your credentials to continue
@@ -197,7 +256,7 @@ const LoginPage = () => {
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => alert("Google login failed")}
+              onError={() => showToast("Google login failed", "error")}
               useOneTap={false}
               text="continue_with"
               shape="rectangular"

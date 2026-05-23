@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ClientForm from "../Components/ClientForm";
 import api from "../api/api";
+import Toast, { useToast } from "../Components/Toast";
 
 // State for storing client profile data
 const ClientProfilePage = () => {
@@ -15,6 +16,8 @@ const ClientProfilePage = () => {
     permanentAddress: "",
     profilePhoto: null as File | string | null,
   });
+
+  const { toast, showToast, hideToast } = useToast();
 
   // Fetch client profile from backend 
   useEffect(() => {
@@ -60,18 +63,36 @@ const ClientProfilePage = () => {
   try {
     await api.put("/client/profile", data);
 
-    alert("Profile updated successfully");
+    showToast(
+      "Profile updated successfully",
+      "success"
+    );
 
     // refresh profile from backend
     const updated = await api.get("/client/profile");
     setFormData(updated.data);
 
   } catch (err) {
-    alert("Update failed");
+   showToast("Update failed", "error");
   }
 };
 
   return (
+    <>
+  {toast && (
+      <div
+        className="fixed top-5 left-1/2
+                   -translate-x-1/2
+                   z-[99999]
+                   w-full max-w-md px-4"
+      >
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      </div>
+    )}
     <div className="min-h-screen bg-gray-100 px-6 py-12">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-12">
         <h1 className="text-3xl font-semibold mb-2 text-[#323e26]">
@@ -102,6 +123,7 @@ const ClientProfilePage = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
