@@ -16,9 +16,20 @@ export const getClientStats = async (req, res) => {
     ).length;
 
     const toPay = bookings
-      .filter((b) => b.status === "pending" || b.status === "confirmed")
-      .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-
+      .filter(
+        (b) =>
+          (
+            b.status === "pending" ||
+            b.status === "confirmed"
+          ) &&
+          b.paymentStatus !== "paid"
+      )
+      .reduce(
+        (sum, b) =>
+          sum + (b.totalAmount || 0),
+        0
+      );
+      
     res.json({
       activeSessions,
       upcomingSessions,
